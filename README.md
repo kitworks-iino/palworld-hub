@@ -23,4 +23,4 @@ npm test
 
 ## 公開URL
 
-<https://ii-kt.github.io/palworld-hub/>
+<https://kitworks-iino.github.io/palworld-hub/>

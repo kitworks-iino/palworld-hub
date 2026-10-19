@@ -13,6 +13,7 @@ hatched through the complete game flow.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -55,13 +56,23 @@ HOOK_PREFIXES = {
     "GENERATE_KEYS": bytes.fromhex("53 48 89 fb 0f 57 c0 0f 11 07 48 8d 7e 30"),
     "MANAGER_FIND_ROW": bytes.fromhex("41 57 41 56 41 54 53 48 81 ec 18 01 00 00"),
 }
-# These four bodies consume modeled object/row fields outside the reviewed
+# These three bodies consume modeled object/row fields outside the reviewed
 # orchestration/candidate functions. Collection alone cannot approve its own
 # output: complete function boundaries, branches and field reads must first be
 # reviewed and their exact hashes committed here. A missing profile always
 # refuses game execution while retaining the newly collected helper windows.
-REVIEWED_HELPERS: dict[str, tuple[int, int, str]] = {}
-REQUIRED_HELPER_REVIEWS = ("PARENT_TRIBE", "GET_TRIBE", "UNIQUE_MEMBERSHIP", "BOSS_VARIANT")
+REVIEWED_HELPERS: dict[str, tuple[int, int, str]] = {
+    # Complete bodies from run 39239451919, independently reviewed before
+    # execution. GET_TRIBE includes its null-row return after the first ret.
+    "PARENT_TRIBE": (0x7291470, 25,
+                     "56b7e85ab5e8e27c6bcb699020e87f6bdac47e1b5d5c5f63daed4efe02fa51ee"),
+    "GET_TRIBE": (0x7156780, 21,
+                  "66ef10bb48cca7503ca5a512e53bcdf7a90654784aa37cfef26be903eabddac9"),
+    "UNIQUE_MEMBERSHIP": (0x715FEE0, 306,
+                          "a6ce1713f03584f18f1f13d9066ae86a821c0e370ab0ccf7e2063b77d3d5cf8c"),
+}
+REQUIRED_HELPER_REVIEWS = ("PARENT_TRIBE", "GET_TRIBE", "UNIQUE_MEMBERSHIP")
+EXCLUDED_BOSS_VARIANT = 0x7135300
 DISASM_LINE = re.compile(r"^\s*([0-9a-f]+):\s*((?:[0-9a-f]{2}\s+)+)\s*(.*?)\s*$")
 
 
@@ -176,7 +187,8 @@ def validate_getters(image: ElfImage, addresses: dict[str, int], gate: dict[str,
     # These accessors are called by the exact, hash-reviewed orchestration body.
     expected = {
         "PARENT_CHARACTER_ID": bytes.fromhex("48 8b 87 d0 03 00 00 c3"),
-        "PARENT_GENDER": bytes.fromhex("0f b6 87 e0 03 00 00 c3"),
+        # The current getter returns al; the reviewed caller compares al/r15b.
+        "PARENT_GENDER": bytes.fromhex("8a 87 e0 03 00 00 c3"),
     }
     for name, prefix in expected.items():
         require(image.read(addresses[name], len(prefix)) == prefix,
@@ -255,9 +267,6 @@ def collect_gate(image: ElfImage, static: dict[str, Any], gate: dict[str, Any]) 
         "PARENT_TRIBE": image.call(0x7132FB4),
         "PARENT_CHARACTER_ID": image.call(0x7133291),
         "PARENT_GENDER": image.call(0x7133165),
-        # The following function begins after the complete nearest function and
-        # its int3 alignment.  Its body is gated below, not inferred by a delta.
-        "BOSS_VARIANT": 0x7135300,
     }
     require(image.call(0x7133326) == addresses["NEAREST"], "Normal selection call does not connect")
     require(image.call(0x7135052) == addresses["GENERATE_KEYS"], "Table-key helper mismatch")
@@ -272,7 +281,7 @@ def collect_gate(image: ElfImage, static: dict[str, Any], gate: dict[str, Any]) 
     for name, address in addresses.items():
         if name in ("BREED", "NEAREST"):
             continue
-        size = 1024 if name in ("BOSS_VARIANT", "UNIQUE_MEMBERSHIP", "ARRAY_GROW") else 128
+        size = 1024 if name in ("UNIQUE_MEMBERSHIP", "ARRAY_GROW") else 128
         gate["helperWindows"][name] = image.window(address, size)
     # The parent tribe accessor forwards to another getter not present in the
     # earlier static artifact. Collect its direct callees before accepting any
@@ -320,17 +329,28 @@ def collect_gate(image: ElfImage, static: dict[str, Any], gate: dict[str, Any]) 
     membership_text = "\n".join(item["assembly"] for item in membership)
     require("+0x140]" in membership_text and "+0x10]" in membership_text,
             "Unique membership function does not support current injected row layout")
-    boss = gate["helperWindows"]["BOSS_VARIANT"]["disassembly"]
-    boss_text = "\n".join(item["assembly"] for item in boss)
-    require(image.read(addresses["BOSS_VARIANT"], 19) ==
-            bytes.fromhex("55 41 57 41 56 41 55 41 54 53 48 81 ec 38 01 00 00 48 89"),
-            "Unknown boss-variant function entry")
-    require("+0x2a]" in boss_text and "+0xcc]" in boss_text,
-            "Boss-variant function does not support current raw-row layout")
-    boss_transfers = {direct_target(item["address"], bytes.fromhex(item["bytes"]))
-                      for item in boss if bytes.fromhex(item["bytes"])[:1] == b"\xe8"}
-    require({addresses["MANAGER_FIND_ROW"], addresses["GENERATE_KEYS"], addresses["FIND_ROW"]} <= boss_transfers,
-            "Unexpected boss-variant table-access call graph")
+    # Review found three additional raw-row fields (+0xcd/+0xce/+0xd0) in
+    # alpha/boss post-processing. They are outside this base-child audit and
+    # must never be silently supplied as zero then reported as verified.
+    # The complete reviewed child bodies return without calling that function.
+    reviewed_calls = []
+    for name, (address, length, _) in {**CORE_REGIONS, **REVIEWED_HELPERS}.items():
+        for item in image.instructions(address, length):
+            code = bytes.fromhex(item["bytes"])
+            if item["assembly"].startswith("call "):
+                require(code[:1] == b"\xe8", f"Unreviewed indirect call in {name}")
+                target = direct_target(item["address"], code)
+                require(target != EXCLUDED_BOSS_VARIANT,
+                        f"Base-child code calls excluded alpha post-processing: {name}")
+                reviewed_calls.append({"function": name, "callAddress": hex(item["address"]),
+                                       "targetAddress": hex(target)})
+    gate["baseChildScope"] = {
+        "bossAlphaPostProcessingInvoked": False,
+        "excludedNativeFunctionAddress": hex(EXCLUDED_BOSS_VARIANT),
+        "reviewedFunctionDirectCallsExcludeBoss": True,
+        "reviewedDirectCalls": reviewed_calls,
+        "reason": "Alpha post-processing reads additional unmodeled raw fields +0xcd/+0xce/+0xd0; the generated probe omits that function and all mapping checks.",
+    }
     gate["addresses"] = {name: hex(value) for name, value in addresses.items()}
     gate["status"] = "current-runtime-machine-layout-matched"
     return addresses
@@ -345,8 +365,61 @@ def c_bytes(data: bytes) -> str:
     return ", ".join(f"0x{item:02x}" for item in data)
 
 
+def remove_alpha_probe(source: str) -> str:
+    """Remove execution and success claims for unmodeled alpha post-processing."""
+    source = replace_once(source, "#define ADDRESS_BOSS_VARIANT ((uintptr_t)0x7118c40)\n", "")
+    source = replace_once(source, """struct boss_mapping {
+    uint16_t released_index;
+    int16_t boss_source;
+    uint16_t source_tribe;
+    uint16_t boss_tribe;
+    uint8_t valid;
+};
+
+""", "")
+    source = replace_once(source, "typedef uint64_t (*boss_variant_fn)(void *, uint64_t);\n", "")
+    source = replace_once(source, """    const struct boss_mapping *boss_mappings,
+    uint32_t boss_mapping_count,
+    uint32_t boss_mapping_mismatch_count,
+""", "")
+    source = replace_once(source,
+                          "logical_mismatch_count == 0u && boss_mapping_mismatch_count == 0u &&",
+                          "logical_mismatch_count == 0u &&")
+    source = replace_once(source, r'''            "  \"bossVariantMappingCount\": %u,\n"
+            "  \"bossVariantMappingMismatchCount\": %u,\n",''',
+                          r'''            "  \"bossAlphaPostProcessingInvoked\": false,\n",''')
+    source = replace_once(source, """            special_mismatch_count, normal_mismatch_count, boss_mapping_count,
+            boss_mapping_mismatch_count);""", "            special_mismatch_count, normal_mismatch_count);")
+    start = source.index(r'''    fputs("\n  ],\n", output);
+
+    fputs("  \"bossVariantMappings\": [", output);''')
+    stop = source.index("    if (fflush(output)", start)
+    source = source[:start] + r'''    fputs("\n  ]\n}\n", output);
+
+''' + source[stop:]
+    source = replace_once(source, "    boss_variant_fn boss_variant = (boss_variant_fn)ADDRESS_BOSS_VARIANT;\n", "")
+    source = replace_once(source, """    struct boss_mapping *boss_mappings = calloc(header->released_count, sizeof(*boss_mappings));
+    bool *released_sources = calloc(header->raw_count, sizeof(*released_sources));
+""", "")
+    source = replace_once(source,
+                          "pair_mismatches == NULL || boss_mappings == NULL || released_sources == NULL)",
+                          "pair_mismatches == NULL)")
+    source = replace_once(source, "        released_sources[released[index].source_order] = true;\n", "")
+    start = source.index("    uint32_t boss_mapping_count = 0u;")
+    stop = source.index("    int write_status = write_result(", start)
+    source = source[:start] + source[stop:]
+    source = replace_once(source, """        pair_mismatch_count, logical_mismatch_count, boss_mappings, boss_mapping_count,
+        boss_mapping_mismatch_count, parent_order_mismatch_count,""",
+                          "        pair_mismatch_count, logical_mismatch_count, parent_order_mismatch_count,")
+    source = replace_once(source, "    free(released_sources);\n    free(boss_mappings);\n", "")
+    require(not any(token in source for token in
+                    ("BOSS_VARIANT", "boss_variant", "boss_mapping", "bossVariant", "released_sources")),
+            "Derived base-child probe retains alpha execution or mapping claims")
+    return source
+
+
 def generate_probe(addresses: dict[str, int]) -> str:
-    source = fixed.PROBE_SOURCE.read_text(encoding="utf-8")
+    source = remove_alpha_probe(fixed.PROBE_SOURCE.read_text(encoding="utf-8"))
     # Only this temporary string is modified. Original source and old reports
     # remain reproducible, and the derived source is hashed in the new report.
     original_addresses = dict(re.findall(r"#define ADDRESS_(\w+) \(\(uintptr_t\)(0x[0-9a-f]+)\)", source))
@@ -549,22 +622,19 @@ def build_report(runtime: dict, raw: dict, input_evidence: dict, addresses: dict
         "runtimeCalls": "runtimeCallMismatchCount", "parentOrder": "parentOrderMismatchCount",
         "hiddenGender": "hiddenGenderMismatchCount", "sameSpecies": "sameSpeciesMismatchCount",
         "specialCombination": "specialCombinationMismatchCount",
-        "normalSelection": "normalSelectionMismatchCount", "bossVariantMapping": "bossVariantMappingMismatchCount",
+        "normalSelection": "normalSelectionMismatchCount",
     }
     differences = {name: runtime[key] for name, key in mismatch_keys.items()}
     require(all(type(value) is int and value == 0 for value in differences.values()),
             "Current native differences are nonzero")
     require(runtime["maleRuntimeCode"] == 1 and runtime["femaleRuntimeCode"] == 2,
             "Unexpected runtime gender encoding")
+    require(runtime.get("bossAlphaPostProcessingInvoked") is False,
+            "Current probe did not explicitly exclude unmodeled alpha post-processing")
     tribe_evidence = fixed.validate_runtime_rows(runtime, raw)
-    pals = json_file(fixed.PALS)["pals"]
-    boss = [{"palId": pals[item["releasedIndex"]]["id"],
-             "sourceId": pals[item["releasedIndex"]]["sourceId"],
-             "bossSourceId": None if item["bossSourceOrder"] < 0 else raw["pals"][item["bossSourceOrder"]]["rowName"],
-             "baseTribeRuntimeId": item["sourceTribeId"], "bossTribeRuntimeId": item["bossTribeId"],
-             "valid": item["valid"]} for item in runtime["bossVariantMappings"]]
     report = {
         "schemaVersion": 2, "status": "current-build-native-runtime-matched",
+        "verifiedAtUtc": datetime.now(timezone.utc).isoformat(),
         "target": {"gameVersion": f"v{VERSION}", "serverAppId": "2394010", "serverBuildId": BUILD,
                    "serverDepotId": "2394012", "serverDepotManifestId": MANIFEST,
                    "serverExecutableBytes": BINARY_BYTES, "serverExecutableSha256": BINARY_SHA256,
@@ -578,20 +648,22 @@ def build_report(runtime: dict, raw: dict, input_evidence: dict, addresses: dict
                        "selectionOrRecipeLogicStubbed": False, "internetEgressBlocked": True},
         "counts": {"rawPalRows": 753, "releasedPals": 288, "uniqueCombinationRows": 258,
                    "unorderedParentPairs": 41_616, "logicalResultRows": 41_617,
-                   "matchingLogicalResultRows": 41_617, "nativeInvocations": 166_464,
-                   "bossVariantMappings": runtime["bossVariantMappingCount"]},
+                   "matchingLogicalResultRows": 41_617, "nativeInvocations": 166_464},
         "differences": differences,
         "gender": {"maleRuntimeCode": 1, "femaleRuntimeCode": 2, "genderDependentPair": "catmage|foxmage"},
         "verificationScope": {"currentNativeExecutableInvoked": True, "extractedTableRowsInjected": True,
                               "livePakDataTablesReadByProbe": False, "baseChildSpeciesIdsVerified": True,
                               "farmAssignmentEligibilityVerified": False, "inGameHatchesObserved": False,
                               "nativeRoundingModeNearestEvenChecked": True,
-                              "syntheticFNamesAndTribeIds": True},
+                              "syntheticFNamesAndTribeIds": True,
+                              "bossAlphaPostProcessingVerified": False},
         "runtimeTableIdentity": {**tribe_evidence,
                                  "runtimeRowsSha256": sha(fixed.canonical_bytes(runtime["runtimeRows"]))},
-        "bossAlphaPostProcessing": {"nativeFunctionAddress": hex(addresses["BOSS_VARIANT"]),
-                                    "modeled": True, "mappingCount": runtime["bossVariantMappingCount"],
-                                    "mismatchCount": 0, "speciesIdentityPreserved": True, "mappings": boss},
+        "bossAlphaPostProcessing": {
+            "nativeFunctionAddress": hex(EXCLUDED_BOSS_VARIANT),
+            "modeled": False, "status": "not-verified", "nativeFunctionInvoked": False,
+            "reason": "The separate alpha post-processing function reads additional raw fields +0xcd/+0xce/+0xd0 that are not injected. It is excluded from this base-child audit; no alpha mapping or hatch outcome is verified.",
+        },
         "allDifferences": {"rowMetadata": runtime["rowMetadataMismatches"],
                            "uniqueRows": runtime["uniqueRowMismatches"],
                            "logicalResults": runtime["logicalResultMismatches"]},

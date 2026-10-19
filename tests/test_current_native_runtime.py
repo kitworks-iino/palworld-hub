@@ -108,7 +108,7 @@ class CurrentNativeAdapterTests(unittest.TestCase):
         # Arbitrary test addresses provide compilation coverage only. They are
         # never loaded or treated as evidence about the game executable.
         names = ("MANAGER_HELPER", "GENERATE_KEYS", "FIND_ROW", "UNIQUE_FIND_ROW",
-                 "MANAGER_FIND_ROW", "FREE", "ARRAY_GROW", "GET_TRIBE", "BREED", "BOSS_VARIANT")
+                 "MANAGER_FIND_ROW", "FREE", "ARRAY_GROW", "GET_TRIBE", "BREED")
         addresses = {name: 0x1000000 + index * 0x1000 for index, name in enumerate(names)}
         original_hash = hashlib.sha256(current.fixed.PROBE_SOURCE.read_bytes()).hexdigest()
         generated = current.generate_probe(addresses)
@@ -117,12 +117,45 @@ class CurrentNativeAdapterTests(unittest.TestCase):
         self.assertIn("grow(result, 0);", generated)
         self.assertIn("g_manager_helper_trampoline(object)", generated)
         self.assertIn("_mm_getcsr()", generated)
+        self.assertNotIn("boss_variant", generated)
+        self.assertNotIn("BOSS_VARIANT", generated)
+        self.assertNotIn("bossVariantMapping", generated)
+        self.assertIn('\\"bossAlphaPostProcessingInvoked\\": false', generated)
         with tempfile.TemporaryDirectory() as temporary:
             path = Path(temporary)
             source = path / "probe.c"
             source.write_text(generated, encoding="utf-8")
             current.fixed.compile_shared(source, path / "probe.so", "-pthread")
         self.assertEqual(hashlib.sha256(current.fixed.PROBE_SOURCE.read_bytes()).hexdigest(), original_hash)
+
+    def test_report_refuses_unexcluded_alpha_and_does_not_promote_legacy_mapping_claims(self):
+        runtime = {"serverBuildId": current.BUILD, "nativeInvocationCount": 166464,
+                   "rawPalRowCount": 753, "releasedPalCount": 288,
+                   "unorderedPairCount": 41616, "logicalResultRowCount": 41617,
+                   "uniqueCombinationRowCount": 258, "maleRuntimeCode": 1, "femaleRuntimeCode": 2,
+                   "runtimeRows": [], "rowMetadataMismatches": [], "uniqueRowMismatches": [],
+                   "logicalResultMismatches": [],
+                   "bossVariantMappingCount": 288, "bossVariantMappingMismatchCount": 0}
+        for name in ("runtimeRowMetadata", "runtimeUniqueRow", "runtimeLogicalResult", "runtimeCall",
+                     "parentOrder", "hiddenGender", "sameSpecies", "specialCombination", "normalSelection"):
+            runtime[name + "MismatchCount"] = 0
+        paths = {name: Path(name) for name in ("raw", "static", "provenance", "gate", "probe_source")}
+        arguments = (runtime, {}, {}, {"BREED": 1, "MANAGER_HELPER": 2}, {}, paths, 0)
+        for flag in (None, True):
+            runtime["bossAlphaPostProcessingInvoked"] = flag
+            with self.assertRaisesRegex(RuntimeError, "explicitly exclude"):
+                current.build_report(*arguments)
+        runtime["bossAlphaPostProcessingInvoked"] = False
+        with mock.patch.object(current.fixed, "validate_runtime_rows", return_value={}), \
+                mock.patch.object(current.fixed, "sha256_file", return_value="test-fixture"):
+            report = current.build_report(*arguments)
+        self.assertFalse(report["verificationScope"]["bossAlphaPostProcessingVerified"])
+        self.assertFalse(report["bossAlphaPostProcessing"]["modeled"])
+        self.assertEqual(report["bossAlphaPostProcessing"]["status"], "not-verified")
+        self.assertNotIn("bossVariantMappings", report["counts"])
+        self.assertNotIn("bossVariantMapping", report["differences"])
+        self.assertNotIn("mappingCount", report["bossAlphaPostProcessing"])
+        self.assertIn("verifiedAtUtc", report)
 
 
 if __name__ == "__main__":

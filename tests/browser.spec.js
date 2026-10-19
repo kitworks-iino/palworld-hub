@@ -19,7 +19,7 @@ async function isolateExternalRequests(page,buildId="24181105"){
 async function expectReady(page){
   await expect(page.locator("body")).toHaveAttribute("data-data-state","ready");
   await expect(page.locator("#palCount")).toHaveText("288形態");
-  await expect(page.locator("#comboCount")).toHaveText("41,616組");
+  await expect(page.locator("#comboCount")).toHaveText("41,328組");
 }
 
 async function openReady(page){
@@ -278,21 +278,23 @@ test("11 reversing parent order preserves the result",async({page})=>{
   await expect.poll(()=>page.locator("#childSlot").evaluate(element=>[...element.querySelectorAll(".jpname,.enname,.no")].map(node=>node.textContent))).toEqual(before);
 });
 
-test("11b all 41,616 parent pairs are invariant under reversal",async({page})=>{
+test("11b all 41,328 playable parent pairs are invariant under reversal",async({page})=>{
   await openReady(page);
   const checked=await page.evaluate(()=>{
     let count=0;
     for(let first=0;first<pals.length;first++){
       for(let second=first;second<pals.length;second++){
-        const forward=getResults(pals[first],pals[second]);
-        const reverse=getResults(pals[second],pals[first]);
-        if(forward!==reverse||forward.length===0)throw new Error(`parent-order mismatch: ${pals[first].uid}|${pals[second].uid}`);
+        if(!isBreedableParent(pals[first])||!isBreedableParent(pals[second]))continue;
+        const signature=result=>normalizedResultSignature(result.first,result.second,result.child,result.parent1Gender,result.parent2Gender);
+        const forward=getResults(pals[first],pals[second]).map(signature);
+        const reverse=getResults(pals[second],pals[first]).map(signature);
+        if(JSON.stringify(forward)!==JSON.stringify(reverse)||forward.length===0)throw new Error(`parent-order mismatch: ${pals[first].uid}|${pals[second].uid}`);
         count++;
       }
     }
     return count;
   });
-  expect(checked).toBe(41616);
+  expect(checked).toBe(41328);
 });
 
 test("12 gender-dependent breeding displays both exact conditions",async({page})=>{
@@ -350,17 +352,17 @@ test("14b child-to-parent shows an honest empty result for native zero-candidate
     await selectPal(page,"#targetPick",id);
     await expect(page.locator("#targetCount")).toHaveText("0組");
     await expect(page.locator("#targetResults .result-row")).toHaveCount(0);
-    await expect(page.locator("#targetResults")).toContainText("該当する親候補がありません");
+    await expect(page.locator("#targetResults")).toContainText("配合では入手できません");
     await expect(page.locator("#targetPick .form-id")).toContainText(id==="kingwhale"?"KingWhale":"PlantSlime_Flower");
   }
 });
 
-test("15 single-parent list has 288 unique partners and groups gender outcomes",async({page})=>{
+test("15 single-parent list has 287 eligible partners and groups gender outcomes",async({page})=>{
   await openReady(page);
   await page.locator('#tabs [data-tab="offspring"]').click();
   await selectPal(page,"#singleParentPick","catmage");
-  await expect(page.locator("#offspringCount")).toHaveText("288組");
-  await expect(page.locator("#offspringResults .result-row")).toHaveCount(288);
+  await expect(page.locator("#offspringCount")).toHaveText("287組");
+  await expect(page.locator("#offspringResults .result-row")).toHaveCount(287);
   const genderGroup=page.locator('#offspringResults [data-pair="catmage|foxmage"]');
   await expect(genderGroup).toHaveCount(1);
   await expect(genderGroup.locator(".offspring-option")).toHaveCount(2);
@@ -456,7 +458,7 @@ test.describe("iPhone 13 emulation on Chromium",()=>{
     hasTouch:iphone13.hasTouch
   });
 
-  test("17 all main views remain operable without page overflow or console errors",async({page})=>{
+  test("17 all main views remain operable without page overflow or console errors",async({page},testInfo)=>{
     const errors=[];
     page.on("console",message=>{if(message.type()==="error")errors.push(message.text())});
     page.on("pageerror",error=>errors.push(error.message));
@@ -482,6 +484,7 @@ test.describe("iPhone 13 emulation on Chromium",()=>{
     await expect(page.locator("#childSlot")).toContainText("チョロゾウ");
     await expectLoadedPalIcon(page.locator("#childSlot .palmark-image"));
     await expectNoPageOverflow();
+    await page.screenshot({path:testInfo.outputPath("release-mobile.png"),fullPage:true});
 
     await page.locator('#tabs [data-tab="target"]').click();
     await selectPal(page,"#targetPick","kingwhale");
@@ -490,7 +493,7 @@ test.describe("iPhone 13 emulation on Chromium",()=>{
 
     await page.locator('#tabs [data-tab="offspring"]').click();
     await selectPal(page,"#singleParentPick","sheepball");
-    await expect(page.locator("#offspringCount")).toHaveText("288組");
+    await expect(page.locator("#offspringCount")).toHaveText("287組");
     await expectNoPageOverflow();
 
     await page.locator('#tabs [data-tab="tree"]').click();
@@ -509,7 +512,7 @@ test.describe("iPhone 13 emulation on Chromium",()=>{
   });
 });
 
-test("18 normal desktop feature flow has zero console or page errors",async({page})=>{
+test("18 normal desktop feature flow has zero console or page errors",async({page},testInfo)=>{
   const errors=[];
   page.on("console",message=>{if(message.type()==="error")errors.push(message.text())});
   page.on("pageerror",error=>errors.push(error.message));
@@ -521,6 +524,7 @@ test("18 normal desktop feature flow has zero console or page errors",async({pag
   }
   await page.waitForTimeout(250);
   expect(errors).toEqual([]);
+  await page.screenshot({path:testInfo.outputPath("release-desktop.png"),fullPage:true});
 });
 
 test("19 a newly detected public build automatically removes current-build status",async({page})=>{
@@ -577,11 +581,11 @@ test("22 every reverse, single-parent, and tree candidate is backed by the same 
         }
       }
       for(const result of orderedAncestorPairs(pal)){
-        if(!source.has(signature(result))||result.child.uid!==pal.uid)throw new Error(`invalid ancestor edge: ${pal.uid}`);
+        if(!source.has(signature(result))||result.child.uid!==pal.uid||!isBreedableParent(result.first)||!isBreedableParent(result.second))throw new Error(`invalid ancestor edge: ${pal.uid}`);
         ancestorRows++;
       }
       for(const result of orderedDescendantPairs(pal)){
-        if(!source.has(signature(result)))throw new Error(`invalid descendant edge: ${pal.uid}`);
+        if(!source.has(signature(result))||!isBreedableParent(result.first)||!isBreedableParent(result.second))throw new Error(`invalid descendant edge: ${pal.uid}`);
         descendantRows++;
       }
     }
@@ -591,7 +595,113 @@ test("22 every reverse, single-parent, and tree candidate is backed by the same 
     sourceRows:41617,
     reverseRows:41617,
     parentRows:82946,
-    ancestorRows:41617,
-    descendantRows:82946
+    ancestorRows:41329,
+    descendantRows:82371
   });
+});
+
+test("23 Japanese input variants and two-parent searches find the same recipe",async({page})=>{
+  await openReady(page);
+  await page.locator('#tabs [data-tab="dex"]').click();
+  for(const query of ["もころん","ﾓｺﾛﾝ","Ｎｏ．００１"]){
+    await page.locator("#dexSearch").fill(query);
+    await expect(page.locator("#dexGrid .pal-card")).toHaveCount(1);
+    await expect(page.locator('#dexGrid [data-id="sheepball"]')).toBeVisible();
+  }
+  await page.locator("#dexSearch").fill("なえもち 花つき");
+  await expect(page.locator("#dexGrid .pal-card")).toHaveCount(1);
+  await expect(page.locator('#dexGrid [data-id="plantslime_flower"] strong')).toContainText("花");
+  await page.locator('#tabs [data-tab="target"]').click();
+  await selectPal(page,"#targetPick","ganesha");
+  await page.locator("#targetFilter").fill("もころん　タマコッコ");
+  await expect(page.locator("#targetResults .result-row")).toHaveCount(1);
+  await expect(page.locator("#targetResults .result-row")).toHaveAttribute("data-pair","chickenpal|sheepball");
+});
+
+test("24 non-breeding pals remain in the dex but cannot become parents",async({page})=>{
+  await openReady(page);
+  await page.locator("#parentA").click();
+  await page.locator("#pickerSearch").fill("kingwhale");
+  await expect(page.locator("#pickerList .picker-item")).toHaveCount(0);
+  await expect(page.locator("#pickerList")).toContainText("見つかりませんでした");
+  await page.locator("#pickerReset").click();
+  await expect(page.locator("#pickerList .picker-item")).toHaveCount(287);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#parentA")).toBeFocused();
+  await page.locator('#tabs [data-tab="dex"]').click();
+  await page.locator("#dexSearch").fill("kingwhale");
+  const card=page.locator('#dexGrid [data-id="kingwhale"]');
+  await expect(card).toContainText("配合牧場に配置不可");
+  await expect(card.locator('[data-destination="offspring"]')).toHaveCount(0);
+  await card.locator('[data-destination="target"]').click();
+  await expect(page.locator("#view-target")).toBeVisible();
+  await expect(page.locator("#targetResults")).toContainText("配合では入手できません");
+  await expect(page.locator("#targetCount")).toHaveText("0組");
+});
+
+test("25 shared calculator links restore selections and reject invalid parents",async({page,context})=>{
+  await context.grantPermissions(["clipboard-read","clipboard-write"],{origin:"http://127.0.0.1:4173"});
+  await openReady(page);
+  await selectPal(page,"#parentA","sheepball");
+  await selectPal(page,"#parentB","chickenpal");
+  await page.locator("#shareView").click();
+  const url=await page.evaluate(()=>navigator.clipboard.readText());
+  expect(new URL(url).hash).toContain("view=parents");
+  expect(new URL(url).hash).toContain("a=sheepball");
+  await page.goto(url);
+  await expectReady(page);
+  await expect(page.locator("#childSlot .jpname")).toHaveText("チョロゾウ");
+  await page.locator('#childActions [data-destination="parents"]').click();
+  await expect(page.locator("#parentA .jpname")).toHaveText("チョロゾウ");
+  await expect(page.locator("#parentB")).toContainText("パルを選択");
+  await page.goto("/#view=parents&a=kingwhale&b=sheepball");
+  await expectReady(page);
+  await expect(page.locator("#parentA")).toContainText("パルを選択");
+  await expect(page.locator("#parentB .jpname")).toHaveText("モコロン");
+  await expect(page.locator("#childSlot")).not.toContainText("シェルガドラ");
+  expect(await page.evaluate(()=>selected.a)).toBeNull();
+  await page.goto("/#view=tree&tree=kingwhale&direction=parent");
+  await expectReady(page);
+  await expect(page.locator("#treeCanvas .tree-node")).toHaveCount(0);
+});
+
+test("26 a reverse recipe opens in the calculator and the tree begins centered",async({page})=>{
+  await openReady(page);
+  await page.locator('#tabs [data-tab="target"]').click();
+  await selectPal(page,"#targetPick","sheepball");
+  await page.locator("#targetResults [data-open-pair]").first().click();
+  await expect(page.locator("#view-parents")).toBeVisible();
+  await expect(page.locator("#childSlot .jpname")).toHaveText("モコロン");
+  await page.locator('#childActions [data-destination="tree"]').click();
+  await expect(page.locator("#view-tree")).toBeVisible();
+  const root=await page.locator("#treeCanvas .tree-node").first().boundingBox();
+  const viewport=await page.locator("#treeViewport").boundingBox();
+  expect(Math.abs(root.x+root.width/2-(viewport.x+viewport.width/2))).toBeLessThan(3);
+  await page.locator("#zoomFit").click();
+  const canvas=await page.locator("#treeCanvas").boundingBox();
+  expect(canvas.width).toBeLessThanOrEqual(viewport.width-28);
+  expect(canvas.height).toBeLessThanOrEqual(viewport.height-45);
+  await page.locator("#zoomReset").click();
+  await expect(page.locator("#zoomReset")).toHaveText("100%");
+});
+
+test("27 reopening a picker resets restrictive filters and traps keyboard focus",async({page})=>{
+  await openReady(page);
+  await page.locator("#parentA").click();
+  await page.locator("#pickerWork").selectOption("mining");
+  await page.locator("#pickerLevel").selectOption("8");
+  await expect(page.locator("#pickerList .picker-item")).toHaveCount(1);
+  await page.locator("#pickerClose").click();
+  await page.locator("#parentB").click();
+  await expect(page.locator("#pickerList .picker-item")).toHaveCount(287);
+  await expect(page.locator("#pickerWork")).toHaveValue("");
+  await expect(page.locator("#pickerLevel")).toBeDisabled();
+  await expect(page.locator("#pickerTitle")).toHaveText("親Bを選択");
+  await page.locator("#pickerClose").focus();
+  await page.keyboard.press("Shift+Tab");
+  await expect(page.locator("#pickerList .picker-item").last()).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#pickerClose")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#parentB")).toBeFocused();
 });

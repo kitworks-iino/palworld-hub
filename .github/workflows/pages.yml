@@ -7,15 +7,22 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
+  verify:
+    name: Verify the release before publication
+    uses: ./.github/workflows/palworld-breeding-source-audit.yml
+
   deploy:
+    needs: verify
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -29,12 +36,14 @@ jobs:
           python-version: "3.12"
       - name: Reject private game inputs and compiled artifacts
         run: python tools/check_repository_hygiene.py
+      - name: Package and validate the public application
+        run: python tools/build_site.py
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "."
+          path: "dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

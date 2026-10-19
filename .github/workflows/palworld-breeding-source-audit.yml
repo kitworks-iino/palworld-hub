@@ -1,8 +1,9 @@
 name: Palworld fixed-build breeding verification
 
 on:
+  workflow_call:
   push:
-    branches: [main]
+    branches: ['release/palworld-20261019']
     paths:
       - "**"
       - "package.json"
@@ -26,14 +27,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Compare Steam public Build ID with the pinned build
         run: |
           python - <<'PY'
           import json
           import os
+          from pathlib import Path
           import urllib.request
 
-          expected = "24181105"
+          baseline = json.loads(Path("data/verification.json").read_text())
+          compatible = Path("data/current-compatibility.json")
+          current_evidence = json.loads(compatible.read_text()) if compatible.exists() else {}
+          expected = str(current_evidence.get("compatibleServerBuildId", baseline["targetServerBuildId"]))
           summary = os.environ["GITHUB_STEP_SUMMARY"]
           try:
               request = urllib.request.Request(
@@ -51,12 +59,12 @@ jobs:
           else:
               if actual != expected:
                   message = (
-                      f"New public server build detected: {actual}; fixed verified dataset: {expected}. "
-                      "The site will automatically present the fixed table as not verified for the current build."
+                      f"New public server build detected: {actual}; latest evidenced build: {expected}. "
+                      "The site will display the version mismatch until the new game files are verified."
                   )
                   print(f"::warning::{message}")
               else:
-                  message = f"Public server build remains pinned build {expected}."
+                  message = f"Public server build matches the latest evidenced build {expected}."
                   print(message)
               with open(summary, "a", encoding="utf-8") as output:
                   output.write(f"### Palworld build monitor\n\n{message}\n")
@@ -85,7 +93,7 @@ jobs:
       - name: Reject private game inputs and compiled artifacts
         run: python tools/check_repository_hygiene.py
       - name: Compile deterministic generators
-        run: python -m py_compile tools/audit_breeding_sources.py tools/validate_exact_build_evidence.py tools/build_verified_dataset.py tools/check_repository_hygiene.py tools/test_pal_icon_extractor_isolation.py tools/verify_native_breeding_binary.py tools/verify_native_breeding_runtime.py
+        run: python -m py_compile tools/audit_breeding_sources.py tools/validate_exact_build_evidence.py tools/build_verified_dataset.py tools/check_repository_hygiene.py tools/test_pal_icon_extractor_isolation.py tools/verify_native_breeding_binary.py tools/verify_native_breeding_runtime.py tools/build_site.py tools/compare_current_game_evidence.py
       - name: Restore and compile the pinned icon extractor
         run: |
           dotnet restore tools/pal-icon-extractor/PalIconExtractor.csproj --locked-mode
@@ -99,13 +107,21 @@ jobs:
       - name: Reject generated drift
         run: git diff --exit-code -- data audit
       - name: Run exhaustive data, icon, reverse-index, parent-list, and tree tests
-        run: python -m unittest -v tests.test_verified_dataset tests.test_pal_icons
+        run: python -m unittest -v tests.test_verified_dataset tests.test_pal_icons tests.test_current_game_evidence
       - name: Install browser test dependency
         run: npm ci
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Run Chromium desktop and iPhone-viewport browser tests
         run: npm run test:palworld
+      - name: Retain the desktop and mobile release previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: palworld-release-previews-${{ github.sha }}
+          path: test-results/**/release-*.png
+          if-no-files-found: ignore
+          retention-days: 3
       - name: Upload diagnostics only after failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -118,4 +134,4 @@ jobs:
             data/verification.json
             test-results/
           if-no-files-found: ignore
-          retention-days: 14
+          retention-days: 3

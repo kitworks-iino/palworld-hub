@@ -41,6 +41,17 @@ const pairKey=(a,b)=>[a,b].sort().join("|");
 const palSort=(a,b)=>a.no-b.no||String(a.suffix||"").localeCompare(String(b.suffix||""))||a.sourceOrder-b.sourceOrder||a.index-b.index;
 const LOCAL_PAL_ICON_PATTERN=/^assets\/pal-icons\/[a-z0-9_]+\.png$/;
 
+// Farm eligibility is a gameplay condition outside the native result function.
+// Panthalus/KingWhale was confirmed unassignable in the extractor author's
+// in-game report: dwyer94/Palgorithm/src/pipeline/EXTRACTION.md (2026-08-01).
+const NON_BREEDING_PARENT_IDS=new Set(["kingwhale"]);
+function isBreedableParent(pal){return Boolean(pal)&&!NON_BREEDING_PARENT_IDS.has(String(pal.uid||pal.id).toLowerCase())}
+function playableResults(rows){return (rows||[]).filter(row=>isBreedableParent(row.first)&&isBreedableParent(row.second))}
+function palDisplayName(pal){
+ if(!pal)return "";
+ return String(pal.uid||pal.id).toLowerCase()==="plantslime_flower"?`${pal.jp}（花付き）`:pal.jp;
+}
+
 function validatedPalIcon(value,palId=""){
  if(typeof value!=="string"||!LOCAL_PAL_ICON_PATTERN.test(value))throw new Error(`パルのアイコンパスが不正です: ${palId||"(unknown)"}`);
  const resolved=new URL(value,document.baseURI);
@@ -233,7 +244,8 @@ function initialiseData(palPayload,compact,check){
  document.body.dataset.dataState="ready";
  setDataStatus("固定ビルド資産表を機械照合済み","ok");
  $("#palCount").textContent=`${pals.length}形態`;
- $("#comboCount").textContent=`${pairMap.size.toLocaleString()}組`;
+ const availablePairCount=[...pairMap.values()].filter(rows=>playableResults(rows).length>0).length;
+ $("#comboCount").textContent=`${availablePairCount.toLocaleString()}組`;
  $("#buildId").textContent=`Build ${check.targetServerBuildId}`;
  renderAll();
  void checkCurrentBuild(check);

@@ -1,10 +1,13 @@
 {
   "name": "palworld-hub",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "scripts": {
+    "build": "python3 tools/build_site.py",
+    "pretest": "npm run build",
     "test": "playwright test tests/browser.spec.js",
+    "pretest:palworld": "npm run build",
     "test:palworld": "playwright test tests/browser.spec.js"
   },
   "devDependencies": {

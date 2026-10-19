@@ -85,7 +85,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: current-game-evidence-25247047-${{ github.sha }}
+          name: current-game-evidence-25247047-${{ github.sha }}-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/palworld-current-evidence/build-25247047.assets.json
             ${{ runner.temp }}/palworld-current-evidence/build-25247047.provenance.json

@@ -20,6 +20,7 @@ import shutil
 import struct
 import subprocess
 import sys
+import time
 
 
 EXTRACTOR_REPO = "https://github.com/Awy64/palworld-atlas-data.git"
@@ -107,12 +108,51 @@ def install_server(work: Path, expected_build: str) -> tuple[Path, dict]:
     download(STEAMCMD_URL, archive)
     installer_sha256 = sha256_file(archive)
     run(["tar", "-xzf", str(archive), "-C", str(steamcmd)])
-    run([
+    install_command = [
         str(steamcmd / "steamcmd.sh"),
         "+@sSteamCmdForcePlatformType", "linux",
         "+force_install_dir", str(server),
-        "+login", "anonymous", "+app_update", APP_ID, "validate", "+quit",
-    ], cwd=steamcmd)
+        "+login", "anonymous",
+        "+app_info_update", "1", "+app_info_print", APP_ID,
+        "+app_update", APP_ID, "validate", "+quit",
+    ]
+    install_attempts = []
+    for attempt in range(1, 4):
+        # Warm the public app record before installation. A fresh SteamCMD can
+        # otherwise fail with Missing configuration immediately after login.
+        result = run(install_command, cwd=steamcmd, capture=True, check=False)
+        output = (result.stdout or "") + "\n" + (result.stderr or "")
+        log = work / f"steamcmd-install-attempt-{attempt}.log"
+        log.write_text(output, encoding="utf-8")
+        lines = [line.strip() for line in output.splitlines() if line.strip()]
+        error_lines = [line[:1000] for line in lines if re.search(
+            r"error|failed|missing configuration|no app info", line, re.IGNORECASE,
+        )][-20:]
+        missing_configuration = (
+            f"failed to install app '{APP_ID}' (missing configuration)"
+            in output.lower()
+        )
+        install_attempts.append({
+            "attempt": attempt,
+            "exitCode": result.returncode,
+            "missingConfiguration": missing_configuration,
+            "errorLines": error_lines,
+            "temporaryLogSha256": sha256_file(log),
+        })
+        # Keep the full public diagnostic output in the temporary work area;
+        # only a short tail and structured failure reasons enter CI/evidence.
+        print(f"SteamCMD install attempt {attempt}: exit {result.returncode}", flush=True)
+        print("\n".join(line[:1000] for line in lines[-20:]), flush=True)
+        if result.returncode == 0 and not missing_configuration:
+            break
+        if not missing_configuration or attempt == 3:
+            raise RuntimeError(
+                "SteamCMD installation failed: "
+                + json.dumps(install_attempts, ensure_ascii=False)
+            )
+        delay = attempt * 5
+        print(f"Missing configuration; refreshing public app info again in {delay}s", flush=True)
+        time.sleep(delay)
     manifests = sorted(work.rglob(f"appmanifest_{APP_ID}.acf"))
     matches = []
     for manifest in manifests:
@@ -151,6 +191,7 @@ def install_server(work: Path, expected_build: str) -> tuple[Path, dict]:
             "url": STEAMCMD_URL, "sha256": installer_sha256,
             "hashStatus": "observed-after-official-https-download",
         },
+        "steamcmdInstallAttempts": install_attempts,
         "source": "Valve SteamCMD anonymous app_update with manifest build check",
     }
     return server, provenance

@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "status": "current-native-parent-and-tribe-accessors-completely-reviewed",
+  "reviewedAtUtc": "2026-10-19T10:56:26.268116+00:00",
+  "serverBuildId": "25247047",
+  "serverExecutableSha256": "8d5c5cb6277a46713df2ad329d7b6887068b39fa98fcf84b8a5dfa3a00caa666",
+  "source": {
+    "file": "build-25247047.helper-collection.json",
+    "sha256": "b4bf7ba55da8dfce016781167aff2b89c5da20e948b57c8d17d1b70b76cd8aaf",
+    "actionsRunId": 39239451919,
+    "artifactId": 12179879843
+  },
+  "regions": [
+    {
+      "name": "PARENT_TRIBE",
+      "virtualAddress": "0x7291470",
+      "endExclusive": "0x7291489",
+      "bytes": 25,
+      "sha256": "56b7e85ab5e8e27c6bcb699020e87f6bdac47e1b5d5c5f63daed4efe02fa51ee",
+      "disassembly": [
+        {
+          "address": 120132720,
+          "bytes": "53",
+          "assembly": "push rbx"
+        },
+        {
+          "address": 120132721,
+          "bytes": "4889fb",
+          "assembly": "mov rbx,rdi"
+        },
+        {
+          "address": 120132724,
+          "bytes": "e877473e00",
+          "assembly": "call 0x7675bf0"
+        },
+        {
+          "address": 120132729,
+          "bytes": "488bb3d0030000",
+          "assembly": "mov rsi,QWORD PTR [rbx+0x3d0]"
+        },
+        {
+          "address": 120132736,
+          "bytes": "4889c7",
+          "assembly": "mov rdi,rax"
+        },
+        {
+          "address": 120132739,
+          "bytes": "5b",
+          "assembly": "pop rbx"
+        },
+        {
+          "address": 120132740,
+          "bytes": "e9f752ecff",
+          "assembly": "jmp 0x7156780"
+        }
+      ]
+    },
+    {
+      "name": "GET_TRIBE",
+      "virtualAddress": "0x7156780",
+      "endExclusive": "0x7156795",
+      "bytes": 21,
+      "sha256": "66ef10bb48cca7503ca5a512e53bcdf7a90654784aa37cfef26be903eabddac9",
+      "disassembly": [
+        {
+          "address": 118843264,
+          "bytes": "50",
+          "assembly": "push rax"
+        },
+        {
+          "address": 118843265,
+          "bytes": "e81a190000",
+          "assembly": "call 0x71580a0"
+        },
+        {
+          "address": 118843270,
+          "bytes": "4885c0",
+          "assembly": "test rax,rax"
+        },
+        {
+          "address": 118843273,
+          "bytes": "7406",
+          "assembly": "je 0x7156791"
+        },
+        {
+          "address": 118843275,
+          "bytes": "0fb7402a",
+          "assembly": "movzx eax,WORD PTR [rax+0x2a]"
+        },
+        {
+          "address": 118843279,
+          "bytes": "59",
+          "assembly": "pop rcx"
+        },
+        {
+          "address": 118843280,
+          "bytes": "c3",
+          "assembly": "ret"
+        },
+        {
+          "address": 118843281,
+          "bytes": "31c0",
+          "assembly": "xor eax,eax"
+        },
+        {
+          "address": 118843283,
+          "bytes": "59",
+          "assembly": "pop rcx"
+        },
+        {
+          "address": 118843284,
+          "bytes": "c3",
+          "assembly": "ret"
+        }
+      ]
+    }
+  ],
+  "parentTribe": {
+    "fieldReads": [
+      {
+        "object": "parent",
+        "offset": "0x3d0",
+        "widthBytes": 8,
+        "meaning": "CharacterID / synthetic FName"
+      }
+    ],
+    "directCalls": [
+      {
+        "callSite": "0x7291474",
+        "target": "0x7675bf0",
+        "meaning": "gated manager helper"
+      }
+    ],
+    "tailCalls": [
+      {
+        "callSite": "0x7291484",
+        "target": "0x7156780",
+        "meaning": "GET_TRIBE with manager in rdi and name in rsi"
+      }
+    ],
+    "conditionalBranches": [],
+    "stackBalancedBeforeTailCall": true,
+    "endBoundary": "25 bytes ending immediately before int3 alignment at 0x7291489"
+  },
+  "getTribe": {
+    "fieldReads": [
+      {
+        "object": "raw pal row returned by manager lookup",
+        "offset": "0x2a",
+        "widthBytes": 2,
+        "meaning": "Tribe"
+      }
+    ],
+    "directCalls": [
+      {
+        "callSite": "0x7156781",
+        "target": "0x71580a0",
+        "meaning": "gated manager row lookup"
+      }
+    ],
+    "conditionalBranches": [
+      {
+        "instruction": "0x7156789",
+        "target": "0x7156791",
+        "condition": "row pointer is null",
+        "outcome": "eax=0; pop rcx; ret at 0x7156794"
+      }
+    ],
+    "nonNullOutcome": "movzx eax,WORD PTR [rax+0x2a]; pop rcx; ret at 0x7156790",
+    "allReachableBranchesReviewed": true,
+    "coldBlockAfterFirstReturnIncluded": true,
+    "endBoundary": "21 bytes ending immediately before int3 alignment at 0x7156795"
+  },
+  "directParentAccessors": {
+    "characterId": {
+      "address": "0x7290570",
+      "bytes": "488b87d0030000c3",
+      "fieldOffset": "0x3d0",
+      "widthBytes": 8,
+      "meaning": "mov rax,[rdi+0x3d0]; ret"
+    },
+    "gender": {
+      "address": "0x72905c0",
+      "bytes": "8a87e0030000c3",
+      "fieldOffset": "0x3e0",
+      "widthBytes": 1,
+      "meaning": "mov al,[rdi+0x3e0]; ret",
+      "callerUsesOnlyLow8Bits": true,
+      "upperEaxBitsNotAssumedZero": true
+    }
+  },
+  "verificationLimits": {
+    "gameFunctionExecutedInThisReview": false,
+    "alphaPostProcessingReviewedBySeparateAgentAndExcludedFromExecution": true,
+    "additionalRawFieldsReadByTheseAccessors": false
+  }
+}

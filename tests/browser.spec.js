@@ -8,7 +8,7 @@ const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const verification=JSON.parse(fs.readFileSync(path.join(ROOT,"data/verification.json"),"utf8"));
 const SITE="/";
 
-async function isolateExternalRequests(page,buildId="24181105"){
+async function isolateExternalRequests(page,buildId="25247047"){
   await page.route("https://api.steamcmd.net/**",route=>route.fulfill({
     status:200,
     contentType:"application/json",
@@ -50,13 +50,13 @@ test.beforeEach(async({page})=>{
   await isolateExternalRequests(page);
 });
 
-test("01 desktop Chromium first load shows the fixed-build counts",async({page})=>{
+test("01 desktop Chromium first load shows the verified current version and playable counts",async({page})=>{
   await openReady(page);
-  await expect(page.locator("#buildId")).toHaveText("Build 24181105");
+  await expect(page.locator("#buildId")).toHaveText("Build 25247047");
   await expect(page.locator("body")).toHaveAttribute("data-build-state","current");
-  await expect(page.locator("#dataStatus")).toContainText("対象サーバーBuild一致");
-  await expect(page.locator("#versionStatus")).toHaveText("最新バージョンに対応しています");
-  await expect(page.locator(".audit-notice")).toContainText("Palworld v1.0.1.100619");
+  await expect(page.locator("#dataStatus")).toHaveText("Build一致・配合データ照合済み");
+  await expect(page.locator("#versionStatus")).toHaveText("現行版データを照合済み");
+  await expect(page.locator("#gameVersion")).toHaveText("Palworld v1.0.5.102999");
 });
 
 test("01b all 288 Pal icons decode from local same-origin assets",async({page})=>{
@@ -141,12 +141,18 @@ test("04 cache purge still loads the versioned dataset",async({page,context})=>{
   const session=await context.newCDPSession(page);
   await session.send("Network.enable");
   await session.send("Network.clearBrowserCache");
-  const urls=[];
-  page.on("request",request=>{if(request.url().includes("/data/")&&request.url().includes("dataset="))urls.push(request.url())});
+  const urls=[],compatibilityURLs=[];
+  page.on("request",request=>{
+    const url=new URL(request.url());
+    if(url.pathname.includes("/data/")&&url.searchParams.has("dataset"))urls.push(url.href);
+    if(url.pathname.endsWith("/data/current-compatibility.json"))compatibilityURLs.push(url.href);
+  });
   await page.reload();
   await expect(page.locator("body")).toHaveAttribute("data-data-state","ready");
   expect(urls).toHaveLength(3);
   expect(urls.every(url=>url.includes("dataset=pw-1.0.1.100619-24181105-cad80fe15c38"))).toBe(true);
+  expect(compatibilityURLs).toHaveLength(1);
+  expect(new URL(compatibilityURLs[0]).searchParams.get("release")).toBe("20261019");
 });
 
 test("05 JSON fetch failure fails closed",async({page})=>{
@@ -537,7 +543,7 @@ test("19 a newly detected public build automatically removes current-build statu
   await openReady(page);
   await expect(page.locator("body")).toHaveAttribute("data-build-state","outdated");
   await expect(page.locator("#dataStatus")).toContainText("新ビルド検出");
-  await expect(page.locator("#versionStatus")).toHaveText("現在の対応バージョン");
+  await expect(page.locator("#versionStatus")).toHaveText("確認済みの対応バージョン");
   await expect(page.locator("#buildFreshness")).toContainText("現行サーバーBuild 99999999");
 });
 
@@ -549,13 +555,13 @@ test("20 child-to-parent renders every candidate without a hidden display cap",a
   await expect(page.locator("#targetResults .result-row")).toHaveCount(1181);
 });
 
-test("21 build lookup failure keeps fixed data usable but removes current-build status",async({page})=>{
+test("21 build lookup failure keeps verified data usable but removes current-build status",async({page})=>{
   await page.unroute("https://api.steamcmd.net/**");
   await page.route("https://api.steamcmd.net/**",route=>route.fulfill({status:503,body:"unavailable"}));
   await openReady(page);
   await expect(page.locator("body")).toHaveAttribute("data-build-state","unknown");
   await expect(page.locator("#dataStatus")).toContainText("現行ビルド確認不能");
-  await expect(page.locator("#versionStatus")).toHaveText("現在の対応バージョン");
+  await expect(page.locator("#versionStatus")).toHaveText("確認済みの対応バージョン");
   await expect(page.locator("#palCount")).toHaveText("288形態");
 });
 
@@ -704,4 +710,37 @@ test("27 reopening a picker resets restrictive filters and traps keyboard focus"
   await expect(page.locator("#pickerClose")).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(page.locator("#parentB")).toBeFocused();
+});
+
+test("28 the verified current English name is searchable in the dex and picker",async({page})=>{
+  await openReady(page);
+  await page.locator('#tabs [data-tab="dex"]').click();
+  await page.locator("#dexSearch").fill("Snock Terra");
+  await expect(page.locator("#dexGrid .pal-card")).toHaveCount(1);
+  await expect(page.locator('#dexGrid [data-id="elecsnail_ground"] .enname')).toHaveText("Snock Terra");
+  await page.locator('#tabs [data-tab="parents"]').click();
+  await page.locator("#parentA").click();
+  await page.locator("#pickerSearch").fill("Snock Terra");
+  await expect(page.locator("#pickerList .picker-item")).toHaveCount(1);
+  await page.locator('#pickerList [data-id="elecsnail_ground"]').click();
+  await expect(page.locator("#parentA .enname")).toHaveText("Snock Terra");
+});
+
+test("29 replacing the current compatibility manifest fails closed and supports retry",async({page})=>{
+  await openReady(page);
+  const original=JSON.parse(fs.readFileSync(path.join(ROOT,"data/current-compatibility.json"),"utf8"));
+  const altered={...original,compatibleServerBuildId:"99999999"};
+  const pattern="**/data/current-compatibility.json?**";
+  await page.route(pattern,route=>route.fulfill({status:200,contentType:"application/json",body:JSON.stringify(altered)}));
+  await page.reload();
+  await expect(page.locator("body")).toHaveAttribute("data-data-state","error");
+  await expect(page.locator("#dataStatus")).toContainText("データ検証失敗");
+  await expect(page.locator("#palCount")).toHaveText("0形態");
+  const state=await page.evaluate(()=>window.PalworldDataState);
+  expect(state.pairCount).toBe(0);
+  expect(state.error).toContain("現行版照合情報のSHA-256");
+  await page.unroute(pattern);
+  await page.locator("#dataStatus").click();
+  await expectReady(page);
+  await expect(page.locator("#gameVersion")).toHaveText("Palworld v1.0.5.102999");
 });

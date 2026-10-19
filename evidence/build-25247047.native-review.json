@@ -1,0 +1,369 @@
+{
+  "schemaVersion": 1,
+  "status": "current-build-local-native-control-flow-reviewed",
+  "reviewedAtUtc": "2026-10-19T10:14:00.973876+00:00",
+  "target": {
+    "gameVersion": "1.0.5.102999",
+    "serverAppId": "2394010",
+    "serverBuildId": "25247047",
+    "serverDepotId": "2394012",
+    "serverDepotManifestId": "7031055933861146620",
+    "depotManifestSha256": null
+  },
+  "executableSha256": "8d5c5cb6277a46713df2ad329d7b6887068b39fa98fcf84b8a5dfa3a00caa666",
+  "sources": {
+    "nativeEvidence": {
+      "path": "build-25247047.native-static.json",
+      "sha256": "4acc434c4f81eb84001f4ffefb4b727fc0348022872b7899408257082c139181"
+    },
+    "rawAssets": {
+      "path": "build-25247047.assets.json",
+      "sha256": "f1b7e8e6c6b101a35843c3bf654cf9bdd5990d6c336caee44ba7fdec6959fbfc"
+    },
+    "inputComparison": {
+      "path": "../audit/current-input-comparison.json",
+      "sha256": "6f12e2dd93d108c026e3d71146bd1dec7e893f260528d9da393b19abffec1b78"
+    },
+    "actionsRunUrl": "https://github.com/kitworks-iino/palworld-hub/actions/runs/39234842984",
+    "actionsArtifactId": 12177319899
+  },
+  "reviewedRegions": [
+    {
+      "name": "normal-child-candidate-selection",
+      "contextStringInInstructions": "FindNearestCombiRank",
+      "contextStringEvidence": "UTF-16 rodata fragments plus movabs immediate form the table-lookup diagnostic context",
+      "entryVirtualAddress": "0x7135020",
+      "endVirtualAddressExclusive": "0x71352f1",
+      "fileOffset": "0x6f34020",
+      "bytes": 721,
+      "reconstructedCodeSha256": "ef5db9af6daa80ef982931fe3bb26673dde5a5a20d56a8fd30f6edcc278c6265",
+      "instructionCount": 176,
+      "returnSites": [
+        "0x71352dc"
+      ],
+      "directNonCallBranchCount": 27,
+      "allDirectNonCallBranchTargetsAreDecodedInsideRegion": true,
+      "instructionByteCoverageContiguous": true,
+      "entryPrologueAndReturnEpilogueObserved": true,
+      "paddingAndNextFunctionPrologueObserved": true,
+      "boundaryBasis": "manual local control-flow review; no symbol or unwind-table boundary verification",
+      "directCalls": [
+        {
+          "callSite": "0x7135052",
+          "target": "0xa32ec20"
+        },
+        {
+          "callSite": "0x7135095",
+          "target": "0x466bfe0"
+        },
+        {
+          "callSite": "0x713512f",
+          "target": "0x715b070"
+        },
+        {
+          "callSite": "0x7135144",
+          "target": "0x78118b0"
+        },
+        {
+          "callSite": "0x7135172",
+          "target": "0x715fee0"
+        },
+        {
+          "callSite": "0x71351b5",
+          "target": "0x4525fd0"
+        },
+        {
+          "callSite": "0x713520b",
+          "target": "0x78118b0"
+        },
+        {
+          "callSite": "0x713526e",
+          "target": "0x71580a0"
+        },
+        {
+          "callSite": "0x71352a1",
+          "target": "0x7976040"
+        },
+        {
+          "callSite": "0x71352bc",
+          "target": "0x78118b0"
+        }
+      ]
+    },
+    {
+      "name": "breeding-result-orchestration",
+      "contextStringInInstructions": "FindChildCharacterID",
+      "contextStringEvidence": "UTF-16 rodata fragments plus movabs immediate form the table-lookup diagnostic context",
+      "entryVirtualAddress": "0x7132f80",
+      "endVirtualAddressExclusive": "0x713335e",
+      "fileOffset": "0x6f31f80",
+      "bytes": 990,
+      "reconstructedCodeSha256": "efebddb0356b4e34cede3b8b42fccec6d24023a3fa0ffde62f9a9d693c7b212f",
+      "instructionCount": 247,
+      "returnSites": [
+        "0x7133351"
+      ],
+      "directNonCallBranchCount": 38,
+      "allDirectNonCallBranchTargetsAreDecodedInsideRegion": true,
+      "instructionByteCoverageContiguous": true,
+      "entryPrologueAndReturnEpilogueObserved": true,
+      "paddingAndNextFunctionPrologueObserved": true,
+      "boundaryBasis": "manual local control-flow review; no symbol or unwind-table boundary verification",
+      "directCalls": [
+        {
+          "callSite": "0x7132f9d",
+          "target": "0x7675bf0"
+        },
+        {
+          "callSite": "0x7132fb4",
+          "target": "0x7291470"
+        },
+        {
+          "callSite": "0x7132fc6",
+          "target": "0x7291470"
+        },
+        {
+          "callSite": "0x7132fe2",
+          "target": "0xa32ec20"
+        },
+        {
+          "callSite": "0x71330ae",
+          "target": "0x7134f40"
+        },
+        {
+          "callSite": "0x71330c3",
+          "target": "0x78118b0"
+        },
+        {
+          "callSite": "0x713312f",
+          "target": "0x71644d0"
+        },
+        {
+          "callSite": "0x7133150",
+          "target": "0x78118b0"
+        },
+        {
+          "callSite": "0x7133165",
+          "target": "0x72905c0"
+        },
+        {
+          "callSite": "0x7133172",
+          "target": "0x72905c0"
+        },
+        {
+          "callSite": "0x7133291",
+          "target": "0x7290570"
+        },
+        {
+          "callSite": "0x713329c",
+          "target": "0x71580a0"
+        },
+        {
+          "callSite": "0x71332b8",
+          "target": "0x7290570"
+        },
+        {
+          "callSite": "0x71332c3",
+          "target": "0x71580a0"
+        },
+        {
+          "callSite": "0x7133326",
+          "target": "0x7135020"
+        },
+        {
+          "callSite": "0x7133338",
+          "target": "0x78118b0"
+        }
+      ]
+    }
+  ],
+  "specialCombinationFlow": {
+    "assessment": "local branch and comparison logic supports the baseline special-first, unordered-parent, gender-aware behavior",
+    "tablePointerLoad": {
+      "instruction": "0x7132fa5",
+      "managerOffset": "0x140"
+    },
+    "tableKeysCall": {
+      "callSite": "0x7132fe2",
+      "target": "0xa32ec20"
+    },
+    "uniqueRowLookupCall": {
+      "callSite": "0x71330ae",
+      "target": "0x7134f40",
+      "calleeBodyReviewed": false
+    },
+    "unorderedTribeComparisonRange": [
+      "0x71330c8",
+      "0x7133108"
+    ],
+    "genderComparisonRange": [
+      "0x71331a0",
+      "0x713326f"
+    ],
+    "genderZeroIsWildcard": true,
+    "genderMatchedChildLoadAndReturnPath": [
+      "0x7133352",
+      "0x7133338",
+      "0x713333d",
+      "0x7133351"
+    ],
+    "noSpecialRowsBranch": {
+      "instruction": "0x713315a",
+      "target": "0x713328c"
+    },
+    "specialScanExhaustedBranch": {
+      "instruction": "0x7133286",
+      "savedMatchTarget": "0x7133333",
+      "otherwiseFallsThroughTo": "0x713328c"
+    },
+    "sameSpeciesEarlyReturnShortcutPresentInReviewedBody": false
+  },
+  "parentRankFlow": {
+    "parentACharacterIdCall": "0x7290570",
+    "parentBCharacterIdCall": "0x7290570",
+    "rowLookupTarget": "0x71580a0",
+    "rankLoads": [
+      "0x71332ad",
+      "0x71332cd"
+    ],
+    "rankByteOffset": "0x100",
+    "rankForMissingRow": 0,
+    "directIgnoreCombiTestOnParentRowsPresent": false,
+    "fieldNameMappingBasis": "same byte offsets as baseline native evidence, corroborated by unchanged current extracted breeding inputs; current reflection descriptors were not collected"
+  },
+  "normalTarget": {
+    "assessment": "matches baseline ceil((rankA + rankB)/2) plus clamped rank bonus under the stated rounding-mode assumption",
+    "instructionRange": [
+      "0x71332d3",
+      "0x7133326"
+    ],
+    "constants": [
+      {
+        "virtualAddress": "0x735ab8",
+        "fileOffset": "0x535ab8",
+        "bytes": "0000003f",
+        "float32LittleEndian": 0.5
+      },
+      {
+        "virtualAddress": "0x735a28",
+        "fileOffset": "0x535a28",
+        "bytes": "000000bf",
+        "float32LittleEndian": -0.5
+      }
+    ],
+    "observedFloatExpression": "xmm1 = -0.5f - 2 * (float32(rankA + rankB) * 0.5f)",
+    "integerConversion": {
+      "address": "0x71332f4",
+      "instruction": "cvtss2si %xmm1,%eax",
+      "usesMxcsrRoundingMode": true
+    },
+    "shift": {
+      "address": "0x71332f8",
+      "instruction": "sar $1,%eax"
+    },
+    "targetExpression": "clamp(bonus,0,10) - (roundNearestEven(-0.5-(rankA+rankB)) arithmetic_shift_right 1)",
+    "equivalentExpressionForObservedRankRange": "floor((rankA + rankB + 1)/2) + clamp(bonus,0,10)",
+    "roundingAssumption": "MXCSR round-to-nearest with ties to even; game process MXCSR was not measured",
+    "float32ExactnessForObservedRange": true,
+    "arithmeticCheck": {
+      "minimumParentRankSum": 20,
+      "maximumParentRankSum": 19998,
+      "integerSumValuesChecked": 19979,
+      "mismatches": 0,
+      "kind": "arithmetic model check, not native runtime execution"
+    },
+    "nullItemEffectPointerBonusValue": 0,
+    "bonusFieldOffset": "0xc",
+    "bonusClampInstructions": [
+      "0x7133306",
+      "0x713330e",
+      "0x7133315"
+    ],
+    "currentExtractedBreedingItemBonusValues": [
+      0
+    ]
+  },
+  "normalCallConnection": {
+    "callSite": "0x7133326",
+    "instructionBytes": "e8f51c0000",
+    "resolvedTarget": "0x7135020",
+    "resolvedTargetIsReviewedCandidateSelectionEntry": true,
+    "arguments": {
+      "rdi": "manager in r12",
+      "esi": "computed target rank",
+      "edx": 1
+    },
+    "thirdArgumentStoreInCallee": "0x7135031",
+    "returnValueTransfer": "rax -> r14 at 0x713332b, r14 -> rax at 0x713333d, ret at 0x7133351"
+  },
+  "normalCandidateSelection": {
+    "assessment": "local loop supports baseline closest-rank selection, candidate-only flags, greater duplicate-priority tie break, and enumeration-order final tie",
+    "rowTableManagerOffset": "0xd8",
+    "candidateFlagTests": [
+      {
+        "address": "0x7135149",
+        "rowByteOffset": "0xcc",
+        "baselineField": "IsBoss"
+      },
+      {
+        "address": "0x7135156",
+        "rowByteOffset": "0x108",
+        "baselineField": "IgnoreCombi"
+      }
+    ],
+    "flaggedCandidateBranchTarget": "0x71350b0",
+    "uniqueExclusionCall": {
+      "callSite": "0x7135172",
+      "target": "0x715fee0",
+      "calledWhenThirdArgumentIsNonzero": true,
+      "trueReturnSkipsCandidate": true,
+      "calleeBodyReviewed": false,
+      "identityBasis": "same callsite pattern as the old verified unique-child membership helper; current callee semantics remain to be checked"
+    },
+    "rankDistanceInstructions": [
+      "0x713517f",
+      "0x7135185",
+      "0x713518b",
+      "0x713518d"
+    ],
+    "equalMinimumDistanceCandidatesAreCollected": true,
+    "duplicatePriorityRead": {
+      "address": "0x713527d",
+      "rowByteOffset": "0x104"
+    },
+    "strictGreaterPrioritySelectInstructions": [
+      "0x7135247",
+      "0x7135249",
+      "0x713524d",
+      "0x7135251"
+    ],
+    "equalPriorityPreservesFirstEnumeratedCandidate": true,
+    "directRarityOrVariantTieBreakerPresent": false,
+    "noCandidateFallback": {
+      "constructorCall": "0x7976040",
+      "nameDataPointer": "0x7b6620",
+      "nameBytesCollected": false,
+      "meaning": "fallback FName value exists; its literal was not included in this artifact"
+    }
+  },
+  "relationshipToBaseline": {
+    "allSixBaselineInstructionPatternsHaveExactlyOneCurrentMatch": true,
+    "matchingPatternScope": "fixed instruction bytes; PC-relative displacements ignored and resolved independently at reviewed callsites",
+    "rawBreedingInputsEqual": true,
+    "baselineFormulaPredictionsMatchCurrentExtractedInputs": true,
+    "matchingLogicalRows": 41617,
+    "fullOldAndCurrentFunctionBytesCompared": false,
+    "conclusion": "No changed breeding rule was found in the two reviewed current function bodies. Core target, dispatch, gender comparisons and tie handling support reuse of the baseline rule on current extracted inputs. This is scoped static corroboration, not an end-to-end current-runtime proof."
+  },
+  "limits": {
+    "candidateFunctionBoundariesVerified": false,
+    "symbolOrUnwindFunctionBoundariesVerified": false,
+    "externalCalleeBodiesReviewed": false,
+    "currentReflectionDescriptorsVerified": false,
+    "gameProcessRoundingModeMeasured": false,
+    "currentNativeFunctionInvokedForEveryPair": false,
+    "currentRuntimeResultsVerified": false,
+    "farmAssignmentEligibilityVerified": false,
+    "inGameHatchObservedForEveryPair": false
+  }
+}

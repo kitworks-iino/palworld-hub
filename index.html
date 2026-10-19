@@ -27,7 +27,7 @@
  </div>
 </header>
 <section class="audit-notice" aria-label="データの対応バージョン">
- <div class="version-line"><span class="version-dot" aria-hidden="true"></span><strong id="versionStatus">データ基準</strong><span id="gameVersion">Palworld v1.0.1.100619</span><button id="dataStatus" class="badge warn" type="button" aria-live="polite">配合データ読込中</button></div>
+ <div class="version-line"><span class="version-dot" aria-hidden="true"></span><strong id="versionStatus">対応データを確認中</strong><span id="gameVersion">Palworld v1.0.5.102999</span><button id="dataStatus" class="badge warn" type="button" aria-live="polite">配合データ読込中</button></div>
  <p id="buildFreshness" class="build-freshness" hidden aria-live="polite"></p>
 </section>
 <nav class="tabs" id="tabs" role="tablist" aria-label="使う機能">
@@ -46,6 +46,7 @@
  <div class="equation"><button class="slot" id="parentA" type="button"></button><div class="op plus" aria-hidden="true">＋</div><button class="slot" id="parentB" type="button"></button><div class="op equals" aria-hidden="true">→</div><div class="slot child-slot" id="childSlot" aria-live="polite"></div></div>
  <div id="childActions" class="child-actions"></div>
  <div class="actions"><button class="action" id="swapParents" type="button">親を入れ替え</button><button class="action" id="clearParents" type="button">選択をクリア</button><button class="action" id="copyParents" type="button">結果をコピー</button></div>
+ <p class="section-hint">性別によって子が変わる配合は、結果に♂・♀の条件を表示します。</p>
  <div id="parentResults" class="results"></div>
 </section>
 <section id="view-target" class="view panel" hidden role="tabpanel" aria-labelledby="tab-target">
@@ -83,13 +84,15 @@
 <details class="info-box info" id="dataDetails">
  <summary>データとバージョン情報</summary>
  <div class="info-content"><span id="buildId" class="badge">Build未確認</span>
- <h3>配合データの基準</h3>
- <p>Palworld v1.0.1.100619のサーバーBuild 24181105から、パルの名前・属性・作業適性・アイコン・配合表を抽出しています。親2体、逆引き、親1体、配合ツリーは同じ配合表を使います。</p>
+ <h3>対応するゲームバージョン</h3>
+ <p>Palworld v1.0.5.102999（サーバーBuild 25247047）。2026年10月19日にSteamの公式配布データを取得し、配合に使う数値・特殊配合・性別条件を照合しました。ドンツムの英名は現行版の「Snock Terra」を表示します。</p>
+ <p>図鑑は288形態、配合計算の親候補は287形態・41,328組です。親2体、逆引き、親1体、配合ツリーは同じ配合表と親の制約を使います。基準となるv1.0.1.100619のデータと検証記録も保存しています。</p>
  <h3>検証した範囲</h3>
- <p>公開形態288体・41,616組を対象に、固定ビルドの配合関数へ親の順序・性別を変えて166,464回入力し、基礎となる子の形態IDがすべて一致することを確認しています。性別によって結果が変わる配合は、両方の条件を表示します。実際のゲーム内での全組み合わせの孵化確認は行っていません。</p>
+ <p>現行版の配合関数へ、親の順序・性別を変えて166,464回入力し、基礎となる子の形態IDが配合表と一致することを確認しています。対象は288形態・41,616組、性別条件を含む41,617行です。実用画面では、配合牧場に配置できない親を候補から除外します。</p>
+ <p>検証は、ゲームから抽出したデータ行を検証用に渡す方式です。実際のゲーム内で全組み合わせを孵化させた検証ではありません。個体値・パッシブ継承率・アルファ化など、子の個体状態を決める処理は計算対象に含めていません。</p>
  <h3>親候補がないパル</h3>
  <p>グランジーラは配合牧場に配置できないため、親候補から除外しています。グランジーラと花付きナエモチを子にする親候補は0組です。花付きナエモチ同士を配合した場合は、通常のナエモチになります。</p>
- <p class="info-links"><a href="data/verification.json" target="_blank" rel="noopener">検証データ</a><a href="https://github.com/kitworks-iino/palworld-hub/tree/main/evidence" target="_blank" rel="noopener">検証の詳細</a></p>
+ <p class="info-links"><a href="data/current-compatibility.json" target="_blank" rel="noopener">現行版の検証記録</a><a href="data/verification.json" target="_blank" rel="noopener">基準データの検証記録</a><a href="https://github.com/kitworks-iino/palworld-hub/tree/main/evidence" target="_blank" rel="noopener">ゲームデータの出典</a></p>
  </div>
 </details>
 </main>

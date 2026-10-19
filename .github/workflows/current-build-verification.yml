@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: palworld-current-game-evidence
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   extract-current-game:
@@ -102,4 +102,4 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          rm -rf -- "$RUNNER_TEMP/palworld-current-work"
+          sudo rm -rf -- "$RUNNER_TEMP/palworld-current-work"

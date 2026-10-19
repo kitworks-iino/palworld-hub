@@ -19,11 +19,13 @@ const EXPECTED_SERVER_EXECUTABLE_SHA256="788649fa1592160faa7bcf07ccd16d474ebeaae
 const EXPECTED_PAL_DATA_SHA256="584c969e0d9d4e9d0b64154b862baa5314914ff3cbe706d15aada035d464984c";
 const EXPECTED_BREEDING_DATA_SHA256="74f2ac2b7825ff9e4f0cea7426c0d22e701d53eb250ad78d2b2b28979dadc52c";
 const EXPECTED_GENERATED_DATA_SHA256="04365dba99db2c7201b867fd3f85953d3751ddad13d6af2838a9c715e87f2478";
+const EXPECTED_COMPATIBILITY_SHA256="b9ec6d4328c9213295541e064c508ee083dd8a96e94d9883b7bb96db9ab6f7f2";
 const DATA_VERSION=encodeURIComponent(APP_DATASET_ID);
 const DATA_URLS={
  pals:`data/pals.verified.json?dataset=${DATA_VERSION}`,
  breeding:`data/breeding.verified.json?dataset=${DATA_VERSION}`,
- verification:`data/verification.json?dataset=${DATA_VERSION}`
+ verification:`data/verification.json?dataset=${DATA_VERSION}`,
+ compatibility:"data/current-compatibility.json?release=20261019"
 };
 
 const ELEMENT_JP={Neutral:"無",Fire:"炎",Water:"水",Electric:"雷",Grass:"草",Dark:"闇",Dragon:"竜",Ground:"地",Ice:"氷"};
@@ -33,7 +35,7 @@ let pals=[],byName=new Map(),byCode=new Map(),byId=new Map(),pairMap=new Map(),p
 let selected={a:null,b:null,target:null,parent:null,tree:null};
 let pickerCallback=null,treeOrientation="result",treeSelections=new Map();
 let zoom=1,panX=0,panY=0;
-let verification=null,lastDataError=null;
+let verification=null,currentCompatibility=null,lastDataError=null;
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -92,7 +94,7 @@ function triangularIndex(size,first,second){
 }
 function clearData(){
  pals=[];byName.clear();byCode.clear();byId.clear();pairMap.clear();parentsByChild.clear();offspringByParent.clear();
- selected={a:null,b:null,target:null,parent:null,tree:null};treeSelections.clear();verification=null;
+ selected={a:null,b:null,target:null,parent:null,tree:null};treeSelections.clear();verification=null;currentCompatibility=null;
 }
 function preparePals(payload,compact){
  assertHeader(payload,2,"パル一覧");
@@ -100,6 +102,7 @@ function preparePals(payload,compact){
  if(payload.pals.length!==288)throw new Error(`パル一覧の件数が不正です: ${payload.pals.length}/288`);
  pals=payload.pals.map((raw,index)=>({
   ...raw,
+  en:currentCompatibility?.displayOverrides?.[String(raw.id).toLowerCase()]?.en||raw.en,
   id:String(raw.id||"").toLowerCase(),
   code:String(raw.id||"").toLowerCase(),
   uid:String(raw.id||"").toLowerCase(),
@@ -211,42 +214,49 @@ function validateIndexes(compact,check){
 function setDataStatus(text,state="warn"){
  const status=$("#dataStatus");status.textContent=text;status.className=`badge ${state}`;status.style.cursor="default";status.onclick=null;
 }
+function validateCurrentCompatibility(value){
+ if(!value||value.schemaVersion!==1||value.status!=="current-build-native-runtime-matched"||value.baselineDatasetId!==APP_DATASET_ID||value.compatibleServerBuildId!=="25247047"||value.compatibleGameVersion!=="v1.0.5.102999"||value.breedingInputComparison?.equal!==true||value.breedingInputComparison?.matchingLogicalRowCount!==41617||value.breedingInputComparison?.mismatchCount!==0)throw new Error("現行版の照合情報がアプリと一致しません");
+ if(value.displayOverrides?.elecsnail_ground?.en!=="Snock Terra"||JSON.stringify(value.gameplay?.excludedParentIds)!==JSON.stringify([...NON_BREEDING_PARENT_IDS]))throw new Error("現行版の表示・親候補情報がアプリと一致しません");
+}
 async function checkCurrentBuild(check){
  const freshness=$("#buildFreshness");
  const versionStatus=$("#versionStatus");
+ const supported=currentCompatibility?.compatibleServerBuildId||check.targetServerBuildId;
+ const verifiedDate=currentCompatibility?.verifiedAtUtc?.slice(0,10)||"";
  try{
   const {value}=await fetchDocument(check.currentBuildEndpoint,10000);
   const current=String(value?.data?.[check.targetServerAppId]?.depots?.branches?.public?.buildid||"");
   if(!current)throw new Error("現行Build IDを取得できません");
-  if(current!==check.targetServerBuildId){
+  if(current!==supported){
    document.body.dataset.buildState="outdated";
-   versionStatus.textContent="現在の対応バージョン";
-   setDataStatus("新ビルド検出・旧固定ビルド（未検証）","warn");
-   freshness.textContent=`現行サーバーBuild ${current}を検出しました。この表はBuild ${check.targetServerBuildId}用のため、現行版としては未検証です。`;
+   versionStatus.textContent="確認済みの対応バージョン";
+   setDataStatus("新ビルド検出・更新内容を未確認","warn");
+   freshness.textContent=`現行サーバーBuild ${current}を検出しました。この計算機の対応はBuild ${supported}までです。新ビルドの配合変更はまだ確認できていません。`;
    freshness.hidden=false;
    return;
   }
   document.body.dataset.buildState="current";
-  versionStatus.textContent="最新バージョンに対応しています";
-   setDataStatus("対象サーバーBuild一致・資産表照合済み","ok");
+  versionStatus.textContent="現行版データを照合済み";
+  setDataStatus("Build一致・配合データ照合済み","ok");
   freshness.hidden=true;
  }catch{
   document.body.dataset.buildState="unknown";
-  versionStatus.textContent="現在の対応バージョン";
-  setDataStatus("固定ビルド資産表・現行ビルド確認不能","warn");
-  freshness.textContent=`Build ${check.targetServerBuildId}の固定データは利用できますが、現行Build IDを確認できませんでした。`;
+  versionStatus.textContent="確認済みの対応バージョン";
+  setDataStatus("配合データ照合済み・現行ビルド確認不能","warn");
+  freshness.textContent=`${verifiedDate?`${verifiedDate}に`:""}Build ${supported}の配合データを照合済みです。現在の公開Build IDは確認できませんでした。`;
   freshness.hidden=false;
  }
 }
-function initialiseData(palPayload,compact,check){
- clearData();verification=check;preparePals(palPayload,compact);buildIndexes(compact);validateIndexes(compact,check);
+function initialiseData(palPayload,compact,check,compatibility){
+ clearData();verification=check;currentCompatibility=compatibility;preparePals(palPayload,compact);buildIndexes(compact);validateIndexes(compact,check);
  fillFilterOptions();
  document.body.dataset.dataState="ready";
- setDataStatus("固定ビルド資産表を機械照合済み","ok");
+ setDataStatus("配合データ照合済み・公開Build確認中","ok");
  $("#palCount").textContent=`${pals.length}形態`;
  const availablePairCount=[...pairMap.values()].filter(rows=>playableResults(rows).length>0).length;
  $("#comboCount").textContent=`${availablePairCount.toLocaleString()}組`;
- $("#buildId").textContent=`Build ${check.targetServerBuildId}`;
+ $("#buildId").textContent=`Build ${currentCompatibility.compatibleServerBuildId}`;
+ $("#gameVersion").textContent=`Palworld ${currentCompatibility.compatibleGameVersion}`;
  renderAll();
  void checkCurrentBuild(check);
 }
@@ -257,10 +267,12 @@ async function load(){
   const check=checkDocument.value;
   assertHeader(check,8,"検証情報");
   if(check.appDataSchemaVersion!==APP_DATA_SCHEMA_VERSION)throw new Error("アプリとデータのバージョンが一致しません");
-  const [palDocument,compactDocument]=await Promise.all([fetchDocument(DATA_URLS.pals),fetchDocument(DATA_URLS.breeding)]);
-  const [palHash,breedingHash]=await Promise.all([sha256Hex(palDocument.text),sha256Hex(compactDocument.text)]);
+  const [palDocument,compactDocument,compatibilityDocument]=await Promise.all([fetchDocument(DATA_URLS.pals),fetchDocument(DATA_URLS.breeding),fetchDocument(DATA_URLS.compatibility)]);
+  const [palHash,breedingHash,compatibilityHash]=await Promise.all([sha256Hex(palDocument.text),sha256Hex(compactDocument.text),sha256Hex(compatibilityDocument.text)]);
   if(palHash!==EXPECTED_PAL_DATA_SHA256||palHash!==check.palDataSha256||breedingHash!==EXPECTED_BREEDING_DATA_SHA256||breedingHash!==check.breedingDataSha256)throw new Error("配合データのSHA-256が検証情報と一致しません");
-  initialiseData(palDocument.value,compactDocument.value,check);
+  if(compatibilityHash!==EXPECTED_COMPATIBILITY_SHA256)throw new Error("現行版照合情報のSHA-256がアプリと一致しません");
+  validateCurrentCompatibility(compatibilityDocument.value);
+  initialiseData(palDocument.value,compactDocument.value,check,compatibilityDocument.value);
  }catch(error){
   lastDataError=error instanceof Error?error:new Error(String(error));clearData();document.body.dataset.dataState="error";
   $("#palCount").textContent="0形態";$("#comboCount").textContent="読込失敗";$("#buildId").textContent="Build未確認";

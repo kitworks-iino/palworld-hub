@@ -1,4 +1,4 @@
-name: Palworld fixed-build breeding verification
+name: Palworld release verification
 
 on:
   workflow_call:
@@ -93,7 +93,7 @@ jobs:
       - name: Reject private game inputs and compiled artifacts
         run: python tools/check_repository_hygiene.py
       - name: Compile deterministic generators
-        run: python -m py_compile tools/audit_breeding_sources.py tools/validate_exact_build_evidence.py tools/build_verified_dataset.py tools/check_repository_hygiene.py tools/test_pal_icon_extractor_isolation.py tools/verify_native_breeding_binary.py tools/verify_native_breeding_runtime.py tools/build_site.py tools/compare_current_game_evidence.py
+        run: python -m py_compile tools/audit_breeding_sources.py tools/validate_exact_build_evidence.py tools/build_verified_dataset.py tools/check_repository_hygiene.py tools/test_pal_icon_extractor_isolation.py tools/verify_native_breeding_binary.py tools/verify_native_breeding_runtime.py tools/build_site.py tools/compare_current_game_evidence.py tools/verify_current_native_runtime.py tools/verify_current_compatibility.py
       - name: Restore and compile the pinned icon extractor
         run: |
           dotnet restore tools/pal-icon-extractor/PalIconExtractor.csproj --locked-mode
@@ -104,10 +104,12 @@ jobs:
         run: python tools/build_verified_dataset.py
       - name: Enforce comparison-only auxiliary source policy
         run: python tools/audit_breeding_sources.py
+      - name: Verify current game compatibility and native execution evidence
+        run: python tools/verify_current_compatibility.py
       - name: Reject generated drift
         run: git diff --exit-code -- data audit
       - name: Run exhaustive data, icon, reverse-index, parent-list, and tree tests
-        run: python -m unittest -v tests.test_verified_dataset tests.test_pal_icons tests.test_current_game_evidence
+        run: python -m unittest -v tests.test_verified_dataset tests.test_pal_icons tests.test_current_game_evidence tests.test_current_native_runtime
       - name: Install browser test dependency
         run: npm ci
       - name: Install Chromium
@@ -118,7 +120,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: palworld-release-previews-${{ github.sha }}
+          name: palworld-release-previews-${{ github.sha }}-${{ github.run_attempt }}
           path: test-results/**/release-*.png
           if-no-files-found: ignore
           retention-days: 3
@@ -126,7 +128,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: palworld-verification-failure-${{ github.sha }}
+          name: palworld-verification-failure-${{ github.sha }}-${{ github.run_attempt }}
           path: |
             audit/exact-build-evidence.json
             audit/exact-comparison.json

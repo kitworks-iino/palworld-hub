@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 2,
+  "status": "current-build-native-runtime-matched",
+  "verifiedAtUtc": "2026-10-19T11:17:32.774059+00:00",
+  "target": {
+    "gameVersion": "v1.0.5.102999",
+    "serverAppId": "2394010",
+    "serverBuildId": "25247047",
+    "serverDepotId": "2394012",
+    "serverDepotManifestId": "7031055933861146620",
+    "serverExecutableBytes": 196506712,
+    "serverExecutableSha256": "8d5c5cb6277a46713df2ad329d7b6887068b39fa98fcf84b8a5dfa3a00caa666",
+    "serverPakBytes": 4570950001,
+    "serverPakSha256": "8cb60497f18b047897a3dd16445b0be4e654797eea655fe9fe0b65991dc33d6b"
+  },
+  "invocation": {
+    "nativeFunctionAddress": "0x7132f80",
+    "managerHelperAddress": "0x7675bf0",
+    "method": "direct current native child-species function with injected extracted tables",
+    "parentOrdersPerGenderOrientation": 2,
+    "genderOrientationsPerPair": 2,
+    "nativeInvocationCount": 166464,
+    "harnessHelperScope": "four table-access hooks and one manager hook for synthetic parents; original manager behavior uses a relocated trampoline",
+    "selectionOrRecipeLogicStubbed": false,
+    "internetEgressBlocked": true
+  },
+  "counts": {
+    "rawPalRows": 753,
+    "releasedPals": 288,
+    "uniqueCombinationRows": 258,
+    "unorderedParentPairs": 41616,
+    "logicalResultRows": 41617,
+    "matchingLogicalResultRows": 41617,
+    "nativeInvocations": 166464
+  },
+  "differences": {
+    "runtimeRowMetadata": 0,
+    "runtimeUniqueRows": 0,
+    "runtimeLogicalResults": 0,
+    "runtimeCalls": 0,
+    "parentOrder": 0,
+    "hiddenGender": 0,
+    "sameSpecies": 0,
+    "specialCombination": 0,
+    "normalSelection": 0
+  },
+  "gender": {
+    "maleRuntimeCode": 1,
+    "femaleRuntimeCode": 2,
+    "genderDependentPair": "catmage|foxmage"
+  },
+  "verificationScope": {
+    "currentNativeExecutableInvoked": true,
+    "extractedTableRowsInjected": true,
+    "livePakDataTablesReadByProbe": false,
+    "baseChildSpeciesIdsVerified": true,
+    "farmAssignmentEligibilityVerified": false,
+    "inGameHatchesObserved": false,
+    "nativeRoundingModeNearestEvenChecked": true,
+    "syntheticFNamesAndTribeIds": true,
+    "bossAlphaPostProcessingVerified": false
+  },
+  "runtimeTableIdentity": {
+    "rawTribeCount": 333,
+    "runtimeTribeCount": 333,
+    "rawToRuntimeAmbiguityCount": 0,
+    "runtimeToRawAmbiguityCount": 0,
+    "runtimeRowsSha256": "8b699bc10bfb8de85e026850f074d46c0785843ea4a3b2aebba75dd7d2d6595f"
+  },
+  "bossAlphaPostProcessing": {
+    "nativeFunctionAddress": "0x7135300",
+    "modeled": false,
+    "status": "not-verified",
+    "nativeFunctionInvoked": false,
+    "reason": "The separate alpha post-processing function reads additional raw fields +0xcd/+0xce/+0xd0 that are not injected. It is excluded from this base-child audit; no alpha mapping or hatch outcome is verified."
+  },
+  "allDifferences": {
+    "rowMetadata": [],
+    "uniqueRows": [],
+    "logicalResults": []
+  },
+  "inputs": {
+    "runtimeInput": {
+      "bytes": 518868,
+      "sha256": "e25e5bdd4ef66431263338e8509db8ccc4f969a13e7954185ea001921fccd57b",
+      "rawPalRows": 753,
+      "releasedPals": 288,
+      "uniqueRows": 258,
+      "pairs": 41616,
+      "logicalRows": 41617,
+      "specialPairs": 183,
+      "tribes": 333
+    },
+    "rawAssetsSha256": "f1b7e8e6c6b101a35843c3bf654cf9bdd5990d6c336caee44ba7fdec6959fbfc",
+    "expectedDatasetServerBuildId": "24181105",
+    "rawExtractionHeaderRewritten": false,
+    "runtimeInputEncoding": "fixed encoder after field-by-field equality of every encoded current extraction field",
+    "palsSha256": "584c969e0d9d4e9d0b64154b862baa5314914ff3cbe706d15aada035d464984c",
+    "breedingSha256": "74f2ac2b7825ff9e4f0cea7426c0d22e701d53eb250ad78d2b2b28979dadc52c",
+    "staticNativeEvidenceSha256": "4acc434c4f81eb84001f4ffefb4b727fc0348022872b7899408257082c139181",
+    "currentProvenanceSha256": "87f231a6469c5711628f69a54754944ada8c25b60e5562d5452428f8116675e1",
+    "runtimeGateSha256": "980a6e8d34bbca2216515ee1a727921d6d6addd908d6948e2a0acbfa95ead3d1",
+    "runtimeAdapterSha256": "a91d4880700b864d4bf302d2eaedbac5952db9d447b500ca0d4e68a0da976306",
+    "originalRuntimeProbeSourceSha256": "75eebadde38b79e1afb506c343f6c957ba74dfa70724e13b041fc215ac24aeb5",
+    "generatedRuntimeProbeSourceSha256": "8180317650a8e39201da15d0caab8e2b2719883e00d07e1373e5d2209d1d1ece",
+    "offlineShimSourceSha256": "39dbb0143a20966eed6e932795aaca0f5949340ec905c4b3192d7f8f7a3c1697"
+  },
+  "isolation": {
+    "githubActions": true,
+    "separateNetworkNamespace": true,
+    "networkInterfaces": [
+      "lo"
+    ],
+    "networkNamespace": "net:[4026532266]",
+    "initialNetworkNamespace": "net:[4026531833]"
+  },
+  "serverInitialization": {
+    "reportedGameVersion": "v1.0.5.102999",
+    "reachedRunningState": true,
+    "processExitCode": 143
+  },
+  "evidenceSha256": "76d30df89af4e5f928e5153fc2c3e0e9365e8e54158ba458c797683495243635"
+}

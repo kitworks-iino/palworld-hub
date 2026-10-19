@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "releaseVersion": "1.1.0",
+  "status": "current-build-native-runtime-matched",
+  "baselineDatasetId": "pw-1.0.1.100619-24181105-cad80fe15c38",
+  "compatibleGameVersion": "v1.0.5.102999",
+  "compatibleServerBuildId": "25247047",
+  "verifiedAtUtc": "2026-10-19T11:17:32.774059+00:00",
+  "releasedPalCount": 288,
+  "breedingInputComparison": {
+    "equal": true,
+    "semanticSha256": "0e1c388beb78a140c1672e51ce41891f2986bcdd2292029f41950e045f9b56f8",
+    "unorderedParentPairCount": 41616,
+    "matchingLogicalRowCount": 41617,
+    "mismatchCount": 0
+  },
+  "nativeRuntimeComparison": {
+    "nativeInvocationCount": 166464,
+    "matchingLogicalRowCount": 41617,
+    "differences": {
+      "runtimeRowMetadata": 0,
+      "runtimeUniqueRows": 0,
+      "runtimeLogicalResults": 0,
+      "runtimeCalls": 0,
+      "parentOrder": 0,
+      "hiddenGender": 0,
+      "sameSpecies": 0,
+      "specialCombination": 0,
+      "normalSelection": 0
+    },
+    "canonicalEvidenceSha256": "76d30df89af4e5f928e5153fc2c3e0e9365e8e54158ba458c797683495243635"
+  },
+  "verificationScope": {
+    "currentNativeExecutableInvoked": true,
+    "extractedTableRowsInjected": true,
+    "livePakDataTablesReadByProbe": false,
+    "baseChildSpeciesIdsVerified": true,
+    "farmAssignmentEligibilityVerified": false,
+    "inGameHatchesObserved": false,
+    "nativeRoundingModeNearestEvenChecked": true,
+    "syntheticFNamesAndTribeIds": true,
+    "bossAlphaPostProcessingVerified": false
+  },
+  "displayOverrides": {
+    "elecsnail_ground": {
+      "en": "Snock Terra"
+    }
+  },
+  "gameplay": {
+    "availableParentCount": 287,
+    "availablePairCount": 41328,
+    "excludedParentIds": [
+      "kingwhale"
+    ],
+    "parentExclusions": [
+      {
+        "palId": "kingwhale",
+        "nameJa": "グランジーラ",
+        "reason": "Reported unassignable to the breeding farm; native child-species results do not establish farm eligibility.",
+        "evidenceType": "dated in-game observation reported by the extractor author",
+        "observationDate": "2026-08-01",
+        "sourceUrl": "https://github.com/dwyer94/Palgorithm/blob/master/src/pipeline/EXTRACTION.md",
+        "reobservedInCurrentPatch": false
+      }
+    ]
+  },
+  "evidence": {
+    "currentAssets": {
+      "path": "evidence/build-25247047.assets.json",
+      "sha256": "f1b7e8e6c6b101a35843c3bf654cf9bdd5990d6c336caee44ba7fdec6959fbfc"
+    },
+    "extractionProvenance": {
+      "path": "evidence/build-25247047.provenance.json",
+      "sha256": "8e1533f5a4e002dbbc88be0c20a471aec48024bc686a878f6033047e3f9c2cbe"
+    },
+    "nativeStatic": {
+      "path": "evidence/build-25247047.native-static.json",
+      "sha256": "4acc434c4f81eb84001f4ffefb4b727fc0348022872b7899408257082c139181"
+    },
+    "nativeReview": {
+      "path": "evidence/build-25247047.native-review.json",
+      "sha256": "0efb206bb4d4b4d764e926dd6862622566a2c58f577bc90aa24291990f0e2b88"
+    },
+    "helperCollection": {
+      "path": "evidence/build-25247047.helper-collection.json",
+      "sha256": "b4bf7ba55da8dfce016781167aff2b89c5da20e948b57c8d17d1b70b76cd8aaf"
+    },
+    "helperReview": {
+      "path": "evidence/build-25247047.helper-review.json",
+      "sha256": "073db42d47d897589b2809cbef4b3c2b7e3d47fb0ec354cfc01578fe532f13f5"
+    },
+    "getterReview": {
+      "path": "evidence/build-25247047.getter-review.json",
+      "sha256": "1eee06398da586e7b05661d2c552afbffe5a6436dc5fb1b8af5ecf7dc9f9178e"
+    },
+    "inputComparison": {
+      "path": "audit/current-input-comparison.json",
+      "sha256": "6f12e2dd93d108c026e3d71146bd1dec7e893f260528d9da393b19abffec1b78"
+    },
+    "nativeRuntime": {
+      "path": "audit/current-native-runtime-comparison.json",
+      "sha256": "5fa4256652e4397fe1c7fd5e9e320ad4410acb9686681c631201dc38d83122b2"
+    },
+    "runtimeGate": {
+      "path": "evidence/build-25247047.runtime-gate.json",
+      "sha256": "980a6e8d34bbca2216515ee1a727921d6d6addd908d6948e2a0acbfa95ead3d1"
+    },
+    "runtimeProvenance": {
+      "path": "evidence/build-25247047.runtime-provenance.json",
+      "sha256": "87f231a6469c5711628f69a54754944ada8c25b60e5562d5452428f8116675e1"
+    }
+  },
+  "workflowEvidence": {
+    "extraction": {
+      "commit": "79901bdb19742c9ad0d970cf12406a9cb29eb12b",
+      "runUrl": "https://github.com/kitworks-iino/palworld-hub/actions/runs/39234842984"
+    },
+    "nativeRuntime": {
+      "commit": "ec3a762165834472c129701dff0522068da63d0d",
+      "runUrl": "https://github.com/kitworks-iino/palworld-hub/actions/runs/39242189169",
+      "nativeVerificationConclusion": "success",
+      "inputComparisonConclusion": "success",
+      "artifactUploadConclusion": "success",
+      "workflowConclusion": "failure",
+      "cleanupConclusion": "failure",
+      "cleanupFailureReason": "A final cleanup command could not remove root-owned temporary server files. Verification and artifact upload succeeded before cleanup. The release limits sudo removal to the same temporary work directory."
+    }
+  }
+}

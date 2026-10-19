@@ -1,0 +1,398 @@
+{
+  "schemaVersion": 1,
+  "status": "current-native-helper-bodies-reviewed-with-alpha-model-rejection",
+  "reviewedAtUtc": "2026-10-19T10:50:44.735064+00:00",
+  "serverBuildId": "25247047",
+  "serverExecutableSha256": "8d5c5cb6277a46713df2ad329d7b6887068b39fa98fcf84b8a5dfa3a00caa666",
+  "source": {
+    "file": "build-25247047.helper-collection.json",
+    "sha256": "b4bf7ba55da8dfce016781167aff2b89c5da20e948b57c8d17d1b70b76cd8aaf",
+    "actionsRunId": 39239451919,
+    "artifactId": 12179879843
+  },
+  "regions": [
+    {
+      "name": "UNIQUE_MEMBERSHIP",
+      "virtualAddress": "0x715fee0",
+      "endExclusive": "0x7160012",
+      "bytes": 306,
+      "sha256": "a6ce1713f03584f18f1f13d9066ae86a821c0e370ab0ccf7e2063b77d3d5cf8c",
+      "instructions": 70,
+      "contiguousInstructionBytes": true,
+      "allNonCallBranchesInsideReviewedBody": true,
+      "nonCallBranches": [
+        {
+          "instruction": "0x715ff17",
+          "target": "0x715ffde"
+        },
+        {
+          "instruction": "0x715ffba",
+          "target": "0x715ffc1"
+        },
+        {
+          "instruction": "0x715ffca",
+          "target": "0x715ffef"
+        },
+        {
+          "instruction": "0x715ffd3",
+          "target": "0x715ff30"
+        },
+        {
+          "instruction": "0x715ffe1",
+          "target": "0x715ffeb"
+        },
+        {
+          "instruction": "0x715ffed",
+          "target": "0x7160000"
+        },
+        {
+          "instruction": "0x715fff7",
+          "target": "0x715fffe"
+        }
+      ],
+      "directCalls": [
+        {
+          "callSite": "0x715ff05",
+          "target": "0xa32ec20"
+        },
+        {
+          "callSite": "0x715ffa7",
+          "target": "0x7134f40"
+        },
+        {
+          "callSite": "0x715ffbc",
+          "target": "0x78118b0"
+        },
+        {
+          "callSite": "0x715ffe6",
+          "target": "0x78118b0"
+        },
+        {
+          "callSite": "0x715fff9",
+          "target": "0x78118b0"
+        }
+      ],
+      "returns": [
+        "0x7160011"
+      ]
+    },
+    {
+      "name": "BOSS_VARIANT",
+      "virtualAddress": "0x7135300",
+      "endExclusive": "0x7135479",
+      "bytes": 377,
+      "sha256": "4d644118cb198e71aa091c869a09a61199352674cda64eb58ff217772733d27b",
+      "instructions": 85,
+      "contiguousInstructionBytes": true,
+      "allNonCallBranchesInsideReviewedBody": true,
+      "nonCallBranches": [
+        {
+          "instruction": "0x713531e",
+          "target": "0x713532a"
+        },
+        {
+          "instruction": "0x7135328",
+          "target": "0x7135332"
+        },
+        {
+          "instruction": "0x7135355",
+          "target": "0x713546f"
+        },
+        {
+          "instruction": "0x7135367",
+          "target": "0x713537d"
+        },
+        {
+          "instruction": "0x7135377",
+          "target": "0x7135445"
+        },
+        {
+          "instruction": "0x71353fa",
+          "target": "0x7135401"
+        },
+        {
+          "instruction": "0x7135408",
+          "target": "0x7135370"
+        },
+        {
+          "instruction": "0x7135415",
+          "target": "0x7135370"
+        },
+        {
+          "instruction": "0x7135422",
+          "target": "0x7135370"
+        },
+        {
+          "instruction": "0x7135430",
+          "target": "0x7135370"
+        },
+        {
+          "instruction": "0x713543d",
+          "target": "0x7135370"
+        },
+        {
+          "instruction": "0x7135443",
+          "target": "0x7135448"
+        },
+        {
+          "instruction": "0x7135450",
+          "target": "0x713545a"
+        },
+        {
+          "instruction": "0x7135475",
+          "target": "0x7135452"
+        },
+        {
+          "instruction": "0x7135477",
+          "target": "0x713545a"
+        }
+      ],
+      "directCalls": [
+        {
+          "callSite": "0x7135316",
+          "target": "0x71580a0"
+        },
+        {
+          "callSite": "0x7135343",
+          "target": "0xa32ec20"
+        },
+        {
+          "callSite": "0x71353e7",
+          "target": "0x715b070"
+        },
+        {
+          "callSite": "0x71353fc",
+          "target": "0x78118b0"
+        },
+        {
+          "callSite": "0x7135455",
+          "target": "0x78118b0"
+        }
+      ],
+      "returns": [
+        "0x713546e"
+      ]
+    },
+    {
+      "name": "ARRAY_GROW",
+      "virtualAddress": "0x466bfe0",
+      "endExclusive": "0x466c06f",
+      "bytes": 143,
+      "sha256": "559193b154607107c03bab9b6d567a0351566be7c3e4419b809e168d3fd6cb59",
+      "instructions": 47,
+      "contiguousInstructionBytes": true,
+      "allNonCallBranchesInsideReviewedBody": true,
+      "nonCallBranches": [
+        {
+          "instruction": "0x466bfed",
+          "target": "0x466bff8"
+        },
+        {
+          "instruction": "0x466bffd",
+          "target": "0x466c011"
+        },
+        {
+          "instruction": "0x466c00f",
+          "target": "0x466c01f"
+        },
+        {
+          "instruction": "0x466c045",
+          "target": "0x466c053"
+        },
+        {
+          "instruction": "0x466c049",
+          "target": "0x466c053"
+        }
+      ],
+      "directCalls": [
+        {
+          "callSite": "0x466bff3",
+          "target": "0x466bfd0"
+        },
+        {
+          "callSite": "0x466c028",
+          "target": "0x781cbc0"
+        },
+        {
+          "callSite": "0x466c05f",
+          "target": "0x781cae0"
+        }
+      ],
+      "returns": [
+        "0x466c052",
+        "0x466c06e"
+      ]
+    }
+  ],
+  "uniqueMembership": {
+    "approvedForCurrentBaseChildInputModel": true,
+    "meaning": "Iterate every DT_PalCombiUnique row and return true iff row ChildCharacterID equals the candidate FName.",
+    "managerFieldsRead": [
+      {
+        "offset": "0x140",
+        "widthBytes": 8,
+        "meaning": "unique table pointer",
+        "instructions": [
+          "0x715fef9",
+          "0x715ff34"
+        ]
+      }
+    ],
+    "uniqueRowFieldsRead": [
+      {
+        "offset": "0x10",
+        "widthBytes": 8,
+        "meaning": "ChildCharacterID FName",
+        "instruction": "0x715ffc6"
+      }
+    ],
+    "rowPointerFlow": "UNIQUE_FIND_ROW return rax -> rbx at 0x715ffac; only row dereference is QWORD [rbx+0x10]",
+    "candidateNameFlow": "rsi -> stack+0x18 -> rax at 0x715ffc1; compared with complete 8-byte child FName",
+    "tableKeyStrideBytes": 8,
+    "matchPath": [
+      "0x715ffca",
+      "0x715ffef",
+      "0x715fffe",
+      "0x7160000",
+      "0x7160011"
+    ],
+    "noMatchOrEmptyPath": [
+      "0x715ffd9",
+      "0x715ffde",
+      "0x715ffeb",
+      "0x7160000",
+      "0x7160011"
+    ],
+    "returnWidthBits": 8,
+    "normalCallerChecksLowByte": {
+      "address": "0x7135177",
+      "instruction": "test al,al"
+    },
+    "onlySemanticCallees": "gated GENERATE_KEYS and UNIQUE_FIND_ROW table hooks; other calls free temporary storage",
+    "additionalUnmodeledPalFieldsRead": false
+  },
+  "bossVariant": {
+    "approvedForCurrentInjectedModel": false,
+    "meaning": "Return the first raw row FName with matching tribe, IsBoss set, and three further category/flag exclusions; return None if no row qualifies.",
+    "managerFieldsRead": [
+      {
+        "offset": "0xd8",
+        "widthBytes": 8,
+        "meaning": "raw table pointer"
+      }
+    ],
+    "baseRowFieldsRead": [
+      {
+        "offset": "0x2a",
+        "widthBytes": 2,
+        "meaning": "tribe",
+        "instruction": "0x7135320"
+      }
+    ],
+    "candidateRowFieldsRead": [
+      {
+        "offset": "0xcd",
+        "widthBytes": 1,
+        "instruction": "0x7135401",
+        "condition": "must equal 0",
+        "injectedFromRawData": false,
+        "fieldIdentityConfirmed": false
+      },
+      {
+        "offset": "0xce",
+        "widthBytes": 1,
+        "instruction": "0x713540e",
+        "condition": "must equal 0",
+        "injectedFromRawData": false,
+        "fieldIdentityConfirmed": false
+      },
+      {
+        "offset": "0xd0",
+        "widthBytes": 1,
+        "instruction": "0x713541b",
+        "condition": "must not equal 11",
+        "injectedFromRawData": false,
+        "fieldIdentityConfirmed": false
+      },
+      {
+        "offset": "0x2a",
+        "widthBytes": 2,
+        "instruction": "0x713542c",
+        "condition": "equals input tribe",
+        "injectedFromRawData": true
+      },
+      {
+        "offset": "0xcc",
+        "widthBytes": 1,
+        "instruction": "0x7135436",
+        "condition": "must not equal 0",
+        "injectedFromRawData": true
+      }
+    ],
+    "modelGap": "calloc zero values at +0xcd/+0xce/+0xd0 are not an extraction of these three game fields.",
+    "selectedResolution": "Exclude alpha/boss postprocessing calls and mapping claims from the current base-child runtime verification."
+  },
+  "arrayGrow": {
+    "approvedForGenerateKeysAllocation": true,
+    "inputArrayLayout": {
+      "data": 0,
+      "count": 8,
+      "capacity": 12
+    },
+    "secondArgument": "previous count for the count-decreased guard; no growth error path is taken for count=N>=0 and previousCount=0",
+    "countLoad": "0x466bfe7",
+    "capacityRead": "0x466bff8",
+    "emptyCapacityCase": [
+      "0x466c011",
+      "0x466c014",
+      "0x466c019",
+      "0x466c01c"
+    ],
+    "emptyArrayMinimumCapacity": 4,
+    "elementSizeBytes": 8,
+    "allocationAlignmentArgument": 4,
+    "quantizeSizeCall": {
+      "callSite": "0x466c028",
+      "target": "0x781cbc0",
+      "bodyReviewed": false
+    },
+    "nativeReallocationCall": {
+      "callSite": "0x466c05f",
+      "target": "0x781cae0",
+      "arguments": "rdi=oldData, rsi=capacity*8, edx=4",
+      "bodyReviewed": false
+    },
+    "dataStore": "0x466c064",
+    "noPalRowMemoryIsPassedToAllocator": true,
+    "proofBasis": "full grow body plus its allocation/deallocation use inside the previously reviewed nearest function"
+  },
+  "baseChildIsolationFromBossFields": {
+    "reviewedBaseBodies": [
+      "0x7132f80..0x713335e",
+      "0x7135020..0x71352f1",
+      "0x715fee0..0x7160012"
+    ],
+    "bossVariantIsCalledByTheseBodies": false,
+    "rawFieldsReadOnBaseChildPath": [
+      "0x2a (uint16 tribe via getter)",
+      "0xcc (uint8 boss flag)",
+      "0x100 (int32 rank)",
+      "0x104 (int32 duplicate priority)",
+      "0x108 (uint8 ignore flag)"
+    ],
+    "parentObjectFieldsRead": [
+      "0x3d0 (8-byte CharacterID)",
+      "0x3e0 (1-byte gender)"
+    ],
+    "parentTribeGetter": "0x7291470 calls manager helper then tail-jumps to 0x7156780; target calls manager row lookup and reads only row+0x2a",
+    "unmodeledBossOffsetsRequiredByBaseChildPath": false,
+    "hookDependency": "Synthetic-parent manager and synthetic-table lookups must take the scoped C hook branches, preserving native helper behavior for ordinary game objects."
+  },
+  "limits": {
+    "currentGameExecutedDuringReview": false,
+    "nativeRuntimeResultsVerified": false,
+    "alphaOrBossPostProcessingVerified": false,
+    "farmAssignmentEligibilityVerified": false,
+    "inGameHatchesObserved": false
+  }
+}

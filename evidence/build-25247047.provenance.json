@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "status": "current-game-evidence-collected",
+  "startedAtUtc": "2026-10-19T10:05:20.289945+00:00",
+  "expectedServerBuildId": "25247047",
+  "workflowCommit": "79901bdb19742c9ad0d970cf12406a9cb29eb12b",
+  "workflowRunId": "39234842984",
+  "extractionScriptSha256": "7d217c3bd90ffb284cf679793e6ce736756cb974968b52d97baa9bfe551510b9",
+  "publicArtifactPolicy": "derived JSON only; no game binaries, raw assets, mappings or compiled files",
+  "steam": {
+    "serverAppId": "2394010",
+    "serverBuildId": "25247047",
+    "platform": "linux",
+    "branch": "public",
+    "serverDepotId": "2394012",
+    "serverDepotManifestId": "7031055933861146620",
+    "appManifestSha256": "ec0d6cf0e46e3be1b5b6a74f80c582aa2f4ca8c100a317136e31572e55e1637b",
+    "depotManifestSha256": null,
+    "steamcmdInstaller": {
+      "url": "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz",
+      "sha256": "cebf0046bfd08cf45da6bc094ae47aa39ebf4155e5ede41373b579b8f1071e7c",
+      "hashStatus": "observed-after-official-https-download"
+    },
+    "source": "Valve SteamCMD anonymous app_update with manifest build check"
+  },
+  "extractor": {
+    "repository": "https://github.com/Awy64/palworld-atlas-data.git",
+    "commit": "0385b3fd8bd757240d4a2c79615145122669abd5",
+    "license": "MIT (upstream extractor); game assets retain their own rights",
+    "baselineRawPalDumpSha256": "79d44cd07efcf767d5be0153763333249229e798c86444f21ca48d7826423eb8",
+    "temporaryRawPalDumpSha256": "7a6b3a9ce2463fc46dee6799a07990ce2d7369a5ac5d9dab1e13fff9161de209",
+    "temporaryProgramSha256": "60bd62da7e4c9bb831736036349abbdd9793e18fd1c6157f742cc3d07080c9ad",
+    "patch": "raw-evidence command, game version provenance and nullable eligibility fields"
+  },
+  "mapping": {
+    "used": false,
+    "reason": "Linux named-property extraction succeeded"
+  },
+  "gameVersion": "1.0.5.102999",
+  "gameVersionSource": "Pal/Config/DefaultGame.ini",
+  "gameVersionError": null,
+  "gameConfigSha256": "77995f1902973c7534747cbae4b38334902858e49aa844d9af34c9d6e525add8",
+  "assets": {
+    "file": "build-25247047.assets.json",
+    "bytes": 696330,
+    "sha256": "f1b7e8e6c6b101a35843c3bf654cf9bdd5990d6c336caee44ba7fdec6959fbfc",
+    "palRows": 753,
+    "uniqueRows": 258,
+    "breedingItemEffects": 4,
+    "pakFiles": [
+      {
+        "file": "Pal-LinuxServer.pak",
+        "bytes": 4570950001,
+        "sha256": "8cb60497f18b047897a3dd16445b0be4e654797eea655fe9fe0b65991dc33d6b"
+      }
+    ]
+  },
+  "nativeStaticEvidence": {
+    "file": "build-25247047.native-static.json",
+    "bytes": 61801,
+    "sha256": "4acc434c4f81eb84001f4ffefb4b727fc0348022872b7899408257082c139181"
+  },
+  "completedAtUtc": "2026-10-19T10:06:42.607614+00:00"
+}

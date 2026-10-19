@@ -1,4 +1,66 @@
-# Fixed-build Palworld evidence
+# Palworld game evidence
+
+## Current release: Build 25247047
+
+The current release preserves the fixed baseline below and separately verifies
+Steam dedicated server Build `25247047`, game version `1.0.5.102999`, Linux
+depot `2394012`, manifest `7031055933861146620`.
+
+- `build-25247047.assets.json`: 753 raw Pal rows, 258 special-combination
+  rows, four breeding-item effects, names and icon references extracted from
+  the official Steam depot. Linux named properties were decoded without a
+  community mapping file.
+- `build-25247047.provenance.json`: official download, extractor commit,
+  game version from packaged `DefaultGame.ini`, input hashes and Actions run.
+- `build-25247047.native-static.json`: current ELF identity, matching
+  instruction fragments, disassembly and referenced floating-point constants.
+- `build-25247047.native-review.json`: scoped control-flow review of the
+  normal-child selector and breeding orchestration. It does not claim a
+  complete symbol/reflection or live-runtime verification.
+- `../audit/current-input-comparison.json`: full reproducible comparison with
+  the baseline. All breeding inputs and all 41,617 predicted rows match.
+  Additional extracted eligibility fields and unrelated movement values are
+  reported separately. The only displayed metadata correction is the English
+  name `Snock Terra` for `ElecSnail_Ground`.
+- `../audit/current-native-runtime-comparison.json`: separately collected
+  current executable results, with native call counts, differences, runtime
+  gate identity and injected-input hashes.
+- `build-25247047.runtime-gate.json`: complete reviewed child-species helper
+  bodies, code hashes, hook boundaries, field offsets and native call targets.
+- `build-25247047.helper-collection.json` and `build-25247047.helper-review.json`:
+  original helper collection and full branch/field review. The initial
+  collection deliberately refused execution until review. The review found
+  three unmodeled fields in alpha/boss postprocessing, so the current runtime
+  excludes that separate function and makes no alpha/boss mapping claim.
+- `build-25247047.getter-review.json`: the complete parent/tribe accessors,
+  including the null-row block after the first return and the one-byte gender
+  getter. No extra row fields are required on the verified child-species path.
+- `build-25247047.runtime-provenance.json`: the independently repeated Steam
+  extraction used for that native run. Its raw-data and executable identities
+  match the initial extraction; its Actions run and timestamps remain distinct.
+- `../data/current-compatibility.json`: the publication manifest consumed by
+  the application and checked by `tools/verify_current_compatibility.py`.
+
+Current PAK SHA-256:
+`8cb60497f18b047897a3dd16445b0be4e654797eea655fe9fe0b65991dc33d6b`.
+Current ELF SHA-256:
+`8d5c5cb6277a46713df2ad329d7b6887068b39fa98fcf84b8a5dfa3a00caa666`.
+
+The workflow `current-build-verification.yml` downloads the exact expected
+public Build, extracts its data, gates the native probe on the executable
+identity and machine instructions, and runs it in a separate network namespace.
+Only derived JSON is uploaded; game binaries, PAKs and compiled probes remain
+temporary. The native audit supplies extracted table rows and checks base child
+form IDs; it is not an exhaustive in-game hatch or individual-state test.
+
+Farm assignment is a separate gameplay condition. The release excludes
+`KingWhale` as a parent based on the dated, explicit in-game observation in
+[Palgorithm extraction notes](https://github.com/dwyer94/Palgorithm/blob/master/src/pipeline/EXTRACTION.md#classification-decisions-the-export-is-a-dev-build--this-is-the-judgement).
+It does not equate `IgnoreCombi` or zero work suitability with a general parent
+ban, and retains the Pal in the catalog. Both sexes exist in the current
+extracted probability values for every selected released form.
+
+## Fixed baseline: Build 24181105
 
 `build-24181105.assets.json` is a derived, read-only extraction.
 `build-24181105.native-breeding.json` records reproducible byte offsets,

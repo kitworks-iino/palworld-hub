@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/current-build-verification.yml'
       - 'tools/extract_current_game_evidence.py'
+      - 'tools/verify_current_native_runtime.py'
 
 permissions:
   contents: read
@@ -37,7 +38,7 @@ jobs:
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            binutils lib32gcc-s1 lib32stdc++6
+            binutils build-essential iproute2 lib32gcc-s1 lib32stdc++6
 
       - name: Extract evidence from the anonymous public Linux depot
         shell: bash
@@ -50,6 +51,26 @@ jobs:
             --expected-build 25247047 \
             --work-dir "$RUNNER_TEMP/palworld-current-work" \
             --output-dir "$RUNNER_TEMP/palworld-current-evidence"
+
+      - name: Verify every pair in the current native breeding function
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo --preserve-env=GITHUB_ACTIONS /usr/bin/unshare --net -- /bin/bash -c '
+            set -euo pipefail
+            ip link set lo up
+            ulimit -c 0
+            cd "$1"
+            exec /usr/bin/python3 tools/verify_current_native_runtime.py \
+              --server-root "$2" \
+              --raw-assets "$3/build-25247047.assets.json" \
+              --provenance "$3/build-25247047.provenance.json" \
+              --native-static "$3/build-25247047.native-static.json" \
+              --output "$3/current-native-runtime-comparison.json" \
+              --gate-output "$3/build-25247047.runtime-gate.json"
+          ' current-native "$GITHUB_WORKSPACE" \
+            "$RUNNER_TEMP/palworld-current-work/palserver" \
+            "$RUNNER_TEMP/palworld-current-evidence"
 
       - name: Compare current game data with the verified baseline
         if: ${{ success() && hashFiles('tools/compare_current_game_evidence.py') != '' }}
@@ -70,6 +91,8 @@ jobs:
             ${{ runner.temp }}/palworld-current-evidence/build-25247047.provenance.json
             ${{ runner.temp }}/palworld-current-evidence/build-25247047.native-static.json
             ${{ runner.temp }}/palworld-current-evidence/current-input-comparison.json
+            ${{ runner.temp }}/palworld-current-evidence/current-native-runtime-comparison.json
+            ${{ runner.temp }}/palworld-current-evidence/build-25247047.runtime-gate.json
           if-no-files-found: error
           retention-days: 7
           compression-level: 9
